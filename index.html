@@ -25,17 +25,17 @@
 
   <div class="row" id="text1">
     <div class = "col-4">
-    <p class=text1opacity>The basic idea of scrollytelling is that you can set up various "scene" as you scroll the webpage through different elements. This is enabled by the "ScrollMagic.Scene" function from the ScrollMagic JavaScript Library.  These scenes can be various animations specified in CSS, such as opacity, color, font-size and others. When creating a scene, you need to associate a particular content element (e.g., a paragraph) as a trigger to activate this scene by using the element id as a "triggerElement". So as you scrolling through different HTML elements on the webpage, you activate different scenes in sequence. In this .html file, you will see this paragraph does not have an id as a trigger, so nothing happens at this moment. When you start to scroll down to the next paragraph (with an id "
+    <p class=text1opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
     </p>
     </div>
 
     <div class = "col-4">
-    <p class=text1opacity>The basic idea of scrollytelling is that you can set up various "scene" as you scroll the webpage through different elements. This is enabled by the "ScrollMagic.Scene" function from the ScrollMagic JavaScript Library.  These scenes can be various animations specified in CSS, such as opacity, color, font-size and others. When creating a scene, you need to associate a particular content element (e.g., a paragraph) as a trigger to activate this scene by using the element id as a "triggerElement". So as you scrolling through different HTML elements on the webpage, you activate different scenes in sequence. In this .html file, you will see this paragraph does not have an id as a trigger, so nothing happens at this moment. When you start to scroll down to the next paragraph (with an id "
+    <p class=text1opacity>Guatemalan families received more than 11 billion dollars in remittances from family members living abroad. This amount is equivalent to 14.6% of Guatemala's GDP.
     </p>
     </div>
 
     <div class = "col-4">
-    <p class=text1opacity>The basic idea of scrollytelling is that you can set up various "scene" as you scroll the webpage through different elements. This is enabled by the "ScrollMagic.Scene" function from the ScrollMagic JavaScript Library.  These scenes can be various animations specified in CSS, such as opacity, color, font-size and others. When creating a scene, you need to associate a particular content element (e.g., a paragraph) as a trigger to activate this scene by using the element id as a "triggerElement". So as you scrolling through different HTML elements on the webpage, you activate different scenes in sequence. In this .html file, you will see this paragraph does not have an id as a trigger, so nothing happens at this moment. When you start to scroll down to the next paragraph (with an id "
+    <p class=text1opacity>In the same year, families in El Salvador received nearly 6 billion dollars in remittances from family members living abroad. This amount is equivalent to 24% of El Salvador's GDP.
     </p>
     </div>
 
@@ -44,6 +44,7 @@
 <div class="row">
   <div class = "col-12">
     <div id="firstvisualdiv">
+        <embed type="text/html" src="savings_graph.html" width="80%" height="50%">
         <img class="img" src="image.jpeg">
     </div>
     </div>
@@ -69,10 +70,6 @@
   new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
   .setClassToggle(".text1opacity", "deactive")
   .addTo(controller);
-
-
-
-
 </script>
 
 

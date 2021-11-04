@@ -1,0 +1,80 @@
+<! DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title> Money Matters </title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js"></script>
+</head>
+
+<body>
+  <main role="main" class="container">
+
+    <div class="row" id="title">
+      <div class = "col-12">
+        <br><br>
+        <h1> How do Remittances Change Lives? </h1>
+        <hr>
+        </div>
+        </div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+  <div class="row" id="text1">
+    <div class = "col-4">
+    <p class=text1opacity>The basic idea of scrollytelling is that you can set up various "scene" as you scroll the webpage through different elements. This is enabled by the "ScrollMagic.Scene" function from the ScrollMagic JavaScript Library.  These scenes can be various animations specified in CSS, such as opacity, color, font-size and others. When creating a scene, you need to associate a particular content element (e.g., a paragraph) as a trigger to activate this scene by using the element id as a "triggerElement". So as you scrolling through different HTML elements on the webpage, you activate different scenes in sequence. In this .html file, you will see this paragraph does not have an id as a trigger, so nothing happens at this moment. When you start to scroll down to the next paragraph (with an id "
+    </p>
+    </div>
+
+    <div class = "col-4">
+    <p class=text1opacity>The basic idea of scrollytelling is that you can set up various "scene" as you scroll the webpage through different elements. This is enabled by the "ScrollMagic.Scene" function from the ScrollMagic JavaScript Library.  These scenes can be various animations specified in CSS, such as opacity, color, font-size and others. When creating a scene, you need to associate a particular content element (e.g., a paragraph) as a trigger to activate this scene by using the element id as a "triggerElement". So as you scrolling through different HTML elements on the webpage, you activate different scenes in sequence. In this .html file, you will see this paragraph does not have an id as a trigger, so nothing happens at this moment. When you start to scroll down to the next paragraph (with an id "
+    </p>
+    </div>
+
+    <div class = "col-4">
+    <p class=text1opacity>The basic idea of scrollytelling is that you can set up various "scene" as you scroll the webpage through different elements. This is enabled by the "ScrollMagic.Scene" function from the ScrollMagic JavaScript Library.  These scenes can be various animations specified in CSS, such as opacity, color, font-size and others. When creating a scene, you need to associate a particular content element (e.g., a paragraph) as a trigger to activate this scene by using the element id as a "triggerElement". So as you scrolling through different HTML elements on the webpage, you activate different scenes in sequence. In this .html file, you will see this paragraph does not have an id as a trigger, so nothing happens at this moment. When you start to scroll down to the next paragraph (with an id "
+    </p>
+    </div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+<div class="row">
+  <div class = "col-12">
+    <div id="firstvisualdiv">
+        <img class="img" src="image.jpeg">
+    </div>
+    </div>
+    </div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+  </div>
+</body>
+
+<script type="text/javascript">
+  var controller = new ScrollMagic.Controller();
+
+  new ScrollMagic.Scene({triggerElement: '#text1'})
+  .setClassToggle(".text1opacity", "active")
+  .addTo(controller);
+
+
+  new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
+  .setClassToggle(".img", "active")
+  .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
+  .setClassToggle(".text1opacity", "deactive")
+  .addTo(controller);
+
+
+
+
+</script>
+
+
+
+</html>

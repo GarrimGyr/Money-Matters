@@ -21,38 +21,66 @@
         </div>
         </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
-  <div class="row" id="text1">
-    <div class = "col-4">
+  <div class="row">
+    <div class = "col-3">
     <p class=text1opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
     </p>
     </div>
 
-    <div class = "col-4">
+  <div class="row">
+    <div class = "col-3">
     <p class=text1opacity>Guatemalan families received more than 11 billion dollars in remittances from family members living abroad. This amount is equivalent to 14.6% of Guatemala's GDP.
     </p>
     </div>
+  </div>
 
-    <div class = "col-4">
+    <div class="row">
+    <div class = "col-3">
     <p class=text1opacity>In the same year, families in El Salvador received nearly 6 billion dollars in remittances from family members living abroad. This amount is equivalent to 24% of El Salvador's GDP.
     </p>
     </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+  <div class = "col-9">
+    <div id="firstvisualdiv">
+        <embed type="text/html" src="savings_graph.html" width="1000" height="800">
+    </div>
+    </div>
+  </div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+<div class="row" id="text2">
+  <div class = "col-4">
+  <p class=text2opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
+  </p>
+  </div>
+
+  <div class = "col-4">
+  <p class=text2opacity>Guatemalan families received more than 11 billion dollars in remittances from family members living abroad. This amount is equivalent to 14.6% of Guatemala's GDP.
+  </p>
+  </div>
+
+  <div class = "col-4">
+  <p class=text2opacity>In the same year, families in El Salvador received nearly 6 billion dollars in remittances from family members living abroad. This amount is equivalent to 24% of El Salvador's GDP.
+  </p>
+  </div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <div class="row">
   <div class = "col-12">
-    <div id="firstvisualdiv">
-        <embed type="text/html" src="savings_graph.html" width="80%" height="50%">
-        <img class="img" src="image.jpeg">
+    <div id="secondvisualdiv">
+        <embed type="text/html" src="debt_graph.html" width="1000" height="800">
     </div>
     </div>
     </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
   </div>
+
 </body>
 
 <script type="text/javascript">
@@ -62,14 +90,30 @@
   .setClassToggle(".text1opacity", "active")
   .addTo(controller);
 
-
-  new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
-  .setClassToggle(".img", "active")
+new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
+  .setClassToggle("#firstvisualdiv", "active")
   .addTo(controller);
 
   new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
   .setClassToggle(".text1opacity", "deactive")
   .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#text2'})
+  .setClassToggle(".text2opacity", "active")
+  .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#text2'})
+  .setClassToggle("#firstvisualdiv", "deactive")
+  .addTo(controller);
+
+
+  new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
+    .setClassToggle("#secondvisualdiv", "active")
+    .addTo(controller);
+
+    new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
+      .setClassToggle("text2opacity", "active")
+      .addTo(controller);
 </script>
 
 

@@ -22,10 +22,21 @@
       </div>
     </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger0'>
+    <p>
+    </p>
+  </div>
 
+  <br><br><br><br><br><br>
+
+  <div class='row' id='trigger1'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
   <div class="row" id="text1">
-    <div class = "col-4">
+    <div class = "col-12">
       <p class=text1opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
       </p>
     </div>
@@ -40,20 +51,37 @@
       </p>
     </div>
   </div>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger1'>
+    <p>
+    </p>
+  </div>
 
-  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
+  <br><br><br><br><br><br>
+  <div class='row' id='trigger2'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
   <div class="row">
     <div class = "col-12">
       <div id="firstvisualdiv">
-        <embed type="text/html" src="map.html" width="1000" height="800">
+        <embed class=imgopacity1 type="text/html" src="map.html" width="1000" height="800">
       </div>
     </div>
   </div>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger2'>
+    <p>
+    </p>
+  </div>
 
-
-  <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
+  <br><br><br><br><br><br>
+ <div class='row' id='trigger3'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
   <div class="row" id="text2">
     <div class = "col-4">
       <p class=text2opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
@@ -70,19 +98,36 @@
       </p>
     </div>
   </div>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger3'>
+    <p>
+    </p>
+  </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
+  <br><br><br><br><br><br>
+ <div class='row' id='trigger4'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
   <div class="row" id="secondvisualdiv">
     <div class = "col-12">
       <div >
-        <embed type="text/html" src="debt_graph.html" width="1000" height="800">
+        <embed class=imgopacity2 type="text/html" src="debt_graph.html" width="1000" height="800">
       </div>
     </div>
   </div>
-
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger4'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+ <div class='row' id='trigger5'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
 <div class="row" id="text3">
   <div class = "col-4">
     <p class=text3opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
@@ -98,73 +143,125 @@
     <p class=text3opacity>In the same year, families in El Salvador received nearly 6 billion dollars in remittances from family members living abroad. This amount is equivalent to 24% of El Salvador's GDP.
     </p>
   </div>
-
 </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+  <br><br><br><br><br><br>
 
-<div class="row" id="thirdvisualdiv">
-  <div class = "col-12">
-    <div>
-        <embed type="text/html" src="savings_graph.html" width="1000px" height="500px">
+  <div class='row' id='detrigger5'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+
+  <div class='row' id='trigger6'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+
+  <div class="row" id="thirdvisualdiv">
+    <div class = "col-12">
+      <div>
+          <embed class=imgopacity3 type="text/html" src="savings_graph.html" width="1000px" height="800px">
+      </div>
     </div>
   </div>
-</div>
 
-<div class="row" id="final_trigger">
-</div>
+  <br><br><br><br><br><br>
 
+  <div class='row' id='detrigger6'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+  <br><br><br><br><br><br>  <br><br><br><br><br><br>
+  <br><br><br><br><br><br>
 </body>
 
 <script type="text/javascript">
   var controller = new ScrollMagic.Controller();
 
-  new ScrollMagic.Scene({triggerElement: '#text1'})
+  new ScrollMagic.Scene({triggerElement: '#detrigger0'})
+    .setClassToggle("#title", "deactive")
+    .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#trigger1'})
       .setClassToggle(".text1opacity", "active")
       .addTo(controller);
-      
 
-new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
-  .setClassToggle("#firstvisualdiv", "active")
+  new ScrollMagic.Scene({triggerElement: '#detrigger1'})
+    .setClassToggle(".text1opacity", "deactive")
+    .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#trigger2'})
+  .setClassToggle(".imgopacity1", "active")
   .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
-  .setClassToggle(".text1opacity", "deactive")
+new ScrollMagic.Scene({triggerElement: '#detrigger2'})
+  .setClassToggle(".imgopacity1", "deactive")
   .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#text2'})
+new ScrollMagic.Scene({triggerElement: '#trigger3'})
   .setClassToggle(".text2opacity", "active")
   .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#text2'})
-  .setClassToggle("#firstvisualdiv", "deactive")
+new ScrollMagic.Scene({triggerElement: '#detrigger3'})
+  .setClassToggle(".text2opacity", "deactive")
   .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
-    .setClassToggle("#secondvisualdiv", "active")
-    .addTo(controller);
+new ScrollMagic.Scene({triggerElement: '#trigger4'})
+  .setClassToggle(".imgopacity2", "active")
+  .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
-      .setClassToggle("text2opacity", "deactive")
-      .addTo(controller);
+new ScrollMagic.Scene({triggerElement: '#detrigger4'})
+  .setClassToggle(".imgopacity2", "deactive")
+  .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#text3'})
-      .setClassToggle(".text3opacity", "active")
-      .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#text3'})
-      .setClassToggle("#secondvisualdiv", "deactive")
-      .addTo(controller);
+new ScrollMagic.Scene({triggerElement: '#trigger5'})
+  .setClassToggle(".text3opacity", "active")
+  .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
-        .setClassToggle("#thirdvisualdiv", "active")
-        .addTo(controller);
+new ScrollMagic.Scene({triggerElement: '#detrigger5'})
+  .setClassToggle(".text3opacity", "deactive")
+  .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
-          .setClassToggle("text3opacity", "active")
+new ScrollMagic.Scene({triggerElement: '#trigger6'})
+  .setClassToggle(".imgopacity3", "active")
+  .addTo(controller);
 
-  new ScrollMagic.Scene({triggerElement: '#final_trigger'})
-          .setClassToggle("thridvisualdiv", "deactive")
+new ScrollMagic.Scene({triggerElement: '#detrigger6'})
+  .setClassToggle(".imgopacity3", "deactive")
+  .addTo(controller);
+
+
+  // new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
+  //   .setClassToggle("#secondvisualdiv", "active")
+  //   .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
+  //     .setClassToggle(".text2opacity", "deactive")
+  //     .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#text3'})
+  //     .setClassToggle(".text3opacity", "active")
+  //     .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#text3'})
+  //     .setClassToggle("#secondvisualdiv", "deactive")
+  //     .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
+  //       .setClassToggle("#thirdvisualdiv", "active")
+  //       .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
+  //         .setClassToggle(".text3opacity", "active")
+
+  // new ScrollMagic.Scene({triggerElement: '#final_trigger'})
+  //         .setClassToggle("#thirdvisualdiv", "deactive")
 </script>
 
 

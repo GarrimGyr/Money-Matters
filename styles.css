@@ -24,44 +24,51 @@ body {
 }
 
 
-#firstvisualdiv {
-      position: -webkit-sticky;
-      position: sticky;
+#firstvisualdiv, #secondvisualdiv, #thirdvisualdiv {
+ /*     position: -webkit-sticky;
+      position: sticky;*/
       top: -1px;
       padding: 0px;
       transition: opacity 0.8s;
-     -webkit-transition: opacity 0.8s;
+/*      opacity: 0;
+*/     -webkit-transition: opacity 0.8s;
     }
 
 #title {
-position: relative;
-padding-top: 30%;
+    position: relative;
+    padding-top: 30%;
+    transition: opacity 0.8s;
+    -webkit-transition: opacity 0.8s;
 }
 
 .img{
-max-width: 100%;
-max-height: 100%;
-position: relative;
-opacity: 0;
-transition: opacity 1.2s;
--webkit-transition: opacity 1.2s;
-
+    max-width: 100%;
+    max-height: 100%;
+    position: relative;
+    opacity: 0;
+    transition: opacity 1.2s;
+    -webkit-transition: opacity 1.2s;
 }
 
-.text1opacity, .text2opacity {
+.text1opacity, .text2opacity, .text3opacity, .imgopacity1 ,.imgopacity2,.imgopacity3{
     opacity:0;
-    transition: opacity 0.8s;
-     -webkit-transition: opacity 0.8s;
+    transition: opacity 1s;
+     -webkit-transition: opacity 1s;
     }
 
-.text3opacity {
+/*.text3opacity {
     font-size:30px;
-    fill:blue;
     opacity:0;
     transition: opacity 0.8s;
     color: blue;
      -webkit-transition: opacity 0.8s;
-    }
+    }*/
+
+/*.trigger1,.detrigger1,.trigg3 {
+    opacity:0;
+}*/
+
+
 
 .active {
       opacity:1;

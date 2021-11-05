@@ -22,10 +22,6 @@
         </div>
         </div>
 
-<div class="row" id="trigger1">
-</div>
-
-
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
   <div class="row">
@@ -118,9 +114,9 @@
 <script type="text/javascript">
   var controller = new ScrollMagic.Controller();
 
-  new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
-    .setClassToggle("#text1opacity", "active")
-    .addTo(controller);
+  new ScrollMagic.Scene({triggerElement: '#text1'})
+      .setClassToggle(".text1opacity", "active")
+      .addTo(controller);
 
 new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
   .setClassToggle("#firstvisualdiv", "active")

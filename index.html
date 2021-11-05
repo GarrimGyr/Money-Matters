@@ -17,11 +17,12 @@
       <div class = "col-12">
         <br><br>
         <h1> How do Remittances Change Lives? </h1>
+        <p style="text-align: center;"> Daniel Pratama, McKenzie Humann, John Devine </p>
         <hr>
         </div>
         </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
   <div class="row">
     <div class = "col-4">
@@ -44,13 +45,13 @@
   <div class="row">
   <div class = "col-9">
     <div id="firstvisualdiv">
-        <embed type="text/html" src="savings_graph.html" width="1000px" height="500px">
+        <embed type="text/html" src="map.html" width="1000" height="800">
     </div>
     </div>
   </div>
 
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <div class="row" id="text2">
   <div class = "col-4">
@@ -68,7 +69,7 @@
   </p>
   </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 
 <div class="row">
   <div class = "col-12">
@@ -78,8 +79,35 @@
     </div>
     </div>
 
-<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+<div class="row" id="text3">
+  <div class = "col-4">
+  <p class=text3opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
+  </p>
   </div>
+
+  <div class = "col-4">
+  <p class=text3opacity>Guatemalan families received more than 11 billion dollars in remittances from family members living abroad. This amount is equivalent to 14.6% of Guatemala's GDP.
+  </p>
+  </div>
+
+  <div class = "col-4">
+  <p class=text3opacity>In the same year, families in El Salvador received nearly 6 billion dollars in remittances from family members living abroad. This amount is equivalent to 24% of El Salvador's GDP.
+  </p>
+  </div>
+
+  </div>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+<div class="row">
+  <div class = "col-12">
+    <div id="thirdvisualdiv">
+        <embed type="text/html" src="savings_graph.html" width="1000px" height="500px">
+    </div>
+    </div>
+    </div>
 
 </body>
 
@@ -113,6 +141,21 @@ new ScrollMagic.Scene({triggerElement: '#firstvisualdiv'})
   new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
       .setClassToggle("text2opacity", "active")
       .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#text3'})
+      .setClassToggle(".text3opacity", "active")
+      .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#text3'})
+      .setClassToggle("#secondvisualdiv", "deactive")
+      .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
+        .setClassToggle("#thirdvisualdiv", "active")
+        .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
+          .setClassToggle("text3opacity", "active")
 </script>
 
 

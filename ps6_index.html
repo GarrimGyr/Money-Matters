@@ -1,0 +1,256 @@
+<! DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title> Money Matters </title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,500" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <link rel="stylesheet" href="ps6_styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.5/ScrollMagic.min.js"></script>
+</head>
+
+<body>
+  <main role="main" class="container">
+
+    <div class="row" id="title">
+      <div class = "col-12">
+        <br><br>
+          <h1> How do Remittances Change Lives? </h1>
+        <p style="text-align: center;"> Daniel Pratama, McKenzie Humann, John Devine </p>
+        <hr>
+      </div>
+    </div>
+
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger0'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+
+  <div class='row' id='trigger1'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+  <div class="row" id="text1">
+<!--     <div class = "col-4">
+      <p class=text1opacity>In 2020, the countries in the Northern Triangle received billions of dollars in remittances.
+      </p>
+    </div>
+
+    <div class = "col-4">
+      <p class=text1opacity>Guatemalan families received more than 11 billion dollars in remittances from family members living abroad. This amount is equivalent to 14.6% of Guatemala's GDP.
+      </p>
+    </div>
+
+    <div class = "col-4">
+      <p class=text1opacity>In the same year, families in El Salvador received nearly 6 billion dollars in remittances from family members living abroad. This amount is equivalent to 24% of El Salvador's GDP.
+      </p>
+    </div> -->
+
+    <div class = "col-12">
+      <p class=text1opacity>We want to look at the difference between families that received remittances and not. To do that, we map the result of the survey responses initiated between WFP and the International Organization for Migration (IOM) by plotting the distribution of percentage of families that received remittances per total respondents at municipality level.
+      </p>
+    </div>
+  </div>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger1'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+  <div class='row' id='trigger2'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+  <div class="row">
+    <div class = "col-12">
+      <div id="firstvisualdiv">
+        <embed class=imgopacity1 type="text/html" src="map.html" width="1000" height="800">
+      </div>
+    </div>
+  </div>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger2'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+ <div class='row' id='trigger3'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+  <div class="row" id="text2">
+    <div class = "col-12">
+      <p class=text2opacity>From the map, we can see that the distribution of families that received remittances differ greatly from municipality to municipality. Out of 151  municipalities interviewed, there are 17 municipalities where more than 50% of families received remittances. This implies that the majority of families across municipalities are not receiving remittances. However, for those families that do receive remittances, the impact is quite significant.
+      </p>
+    </div>
+
+  </div>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger3'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+ <div class='row' id='trigger4'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+  <div class="row" id="secondvisualdiv">
+    <div class = "col-12">
+      <div >
+        <embed class=imgopacity2 type="text/html" src="debt_graph.html" width="1000" height="800">
+      </div>
+    </div>
+  </div>
+  <br><br><br><br><br><br>
+  <div class='row' id='detrigger4'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+ <div class='row' id='trigger5'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+<div class="row" id="text3">
+  <div class = "col-12">
+    <p class=text3opacity>Looking at only families that have had a family member migrate, those that receive remittances are more likely to have savings, but also are more likely to have debt.
+    </p>
+  </div>
+
+</div>
+
+  <br><br><br><br><br><br>
+
+  <div class='row' id='detrigger5'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+
+  <div class='row' id='trigger6'>
+    <p>
+    </p>
+  </div>
+
+  <br><br><br><br><br><br>
+
+  <div class="row" id="thirdvisualdiv">
+    <div class = "col-12">
+      <div>
+          <embed class=imgopacity3 type="text/html" src="savings_graph.html" width="1000px" height="800px">
+      </div>
+    </div>
+  </div>
+
+  <br><br><br><br><br><br>
+
+  <div class='row' id='detrigger6'>
+    <p>
+    </p>
+  </div>
+  <br><br><br><br><br><br>
+  <br><br><br><br><br><br>  <br><br><br><br><br><br>
+  <br><br><br><br><br><br>
+</body>
+
+<script type="text/javascript">
+  var controller = new ScrollMagic.Controller();
+
+  new ScrollMagic.Scene({triggerElement: '#detrigger0'})
+    .setClassToggle("#title", "deactive")
+    .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#trigger1'})
+      .setClassToggle(".text1opacity", "active")
+      .addTo(controller);
+
+  new ScrollMagic.Scene({triggerElement: '#detrigger1'})
+    .setClassToggle(".text1opacity", "deactive")
+    .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#trigger2'})
+  .setClassToggle(".imgopacity1", "active")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#detrigger2'})
+  .setClassToggle(".imgopacity1", "deactive")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#trigger3'})
+  .setClassToggle(".text2opacity", "active")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#detrigger3'})
+  .setClassToggle(".text2opacity", "deactive")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#trigger4'})
+  .setClassToggle(".imgopacity2", "active")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#detrigger4'})
+  .setClassToggle(".imgopacity2", "deactive")
+  .addTo(controller);
+
+
+new ScrollMagic.Scene({triggerElement: '#trigger5'})
+  .setClassToggle(".text3opacity", "active")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#detrigger5'})
+  .setClassToggle(".text3opacity", "deactive")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#trigger6'})
+  .setClassToggle(".imgopacity3", "active")
+  .addTo(controller);
+
+new ScrollMagic.Scene({triggerElement: '#detrigger6'})
+  .setClassToggle(".imgopacity3", "deactive")
+  .addTo(controller);
+
+
+  // new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
+  //   .setClassToggle("#secondvisualdiv", "active")
+  //   .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#secondvisualdiv'})
+  //     .setClassToggle(".text2opacity", "deactive")
+  //     .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#text3'})
+  //     .setClassToggle(".text3opacity", "active")
+  //     .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#text3'})
+  //     .setClassToggle("#secondvisualdiv", "deactive")
+  //     .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
+  //       .setClassToggle("#thirdvisualdiv", "active")
+  //       .addTo(controller);
+
+  // new ScrollMagic.Scene({triggerElement: '#thirdvisualdiv'})
+  //         .setClassToggle(".text3opacity", "active")
+
+  // new ScrollMagic.Scene({triggerElement: '#final_trigger'})
+  //         .setClassToggle("#thirdvisualdiv", "deactive")
+</script>
+
+
+
+</html>

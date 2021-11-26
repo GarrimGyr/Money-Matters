@@ -7,9 +7,13 @@
 var scrollVis = function () {
   // constants to define the size
   // and margins of the vis area.
-    var width = 600;
-    var height = 700;
-    var margin = { top: 0, left: 20, bottom: 40, right: 10 };
+    var visWidth = 600;
+    var visHeight = 500;
+    var margin = { top: 200, left: 30, bottom: 50, right: 10 };
+
+    var chartMargin = {top: 30, left: 0, bottom: 10, right: 10};
+    var chartWidth = visWidth - margin.left - margin.right - chartMargin.left - chartMargin.right;
+    var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom; 
 
     // Keep track of which visualization
     // we are on and which was the last
@@ -31,16 +35,16 @@ var scrollVis = function () {
     // data is processed.
     // @v4 using new scale names
     var xBarScale = d3.scaleLinear()
-        .range([0, width]);
+        .range([0, chartWidth]);
 
     // The bar chart display is horizontal
     // so we can use an ordinal scale
     // to get width and y locations.
     // @v4 using new scale type
     var yBarScale = d3.scaleBand()
-        .paddingInner(0.08)
-        .domain([0, 1])
-        .range([0, height - 50], 0.1, 0.1);
+        .paddingInner(0.1)
+        .range([0, chartHeight], 0.5, 0.1);
+
 
     // Color is determined just by the index of the bars
     var barColors = { 0: '#1E3E39', 1: '#385941', 2: '#658C4D' };
@@ -52,6 +56,9 @@ var scrollVis = function () {
     // @v4 using new axis name
     var xAxisBar = d3.axisBottom()
         .scale(xBarScale);
+
+    var yAxisBar = d3.axisRight()
+        .scale(yBarScale);
 
     // When scrolling to a new section
     // the activation function for that
@@ -78,8 +85,8 @@ var scrollVis = function () {
         // @v4 use merge to combine enter and existing selection
         svg = svg.merge(svgE);
 
-        svg.attr('width', width + margin.left + margin.right);
-        svg.attr('height', height + margin.top + margin.bottom);
+        svg.attr('width', visWidth);
+        svg.attr('height', visHeight);
 
         svg.append('g');
 
@@ -87,16 +94,18 @@ var scrollVis = function () {
         // this group element will be used to contain all
         // other elements.
         g = svg.select('g')
-            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+            // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
         // perform some preprocessing on raw data
-        exp_data = reshapeExp(dataset, 'total_expenditure')
+        var exp_data = reshapeExp(dataset, 'total_expenditure')
+        var yValues = exp_data.map(d => d.type);
 
         // set the bar scale's domain
         var countMax = d3.max(exp_data, function (d) { return d.value;});
-        xBarScale.domain([0, countMax]);
+        xBarScale.domain([0, countMax + 10]);
+        yBarScale.domain(yValues);
 
-        setupVis(exp_data);
+        setupVis(dataset);
 
         setupSections();
         });
@@ -107,59 +116,154 @@ var scrollVis = function () {
      * setupVis - creates initial elements for all
      * sections of the visualization.
      */
-    var setupVis = function (exp_data) {
+    var setupVis = function (dataset) {
+        var exp_data = reshapeExp(dataset, 'total_expenditure')
+        var food_data = reshapeExp(dataset, 'food_pc')
+
         // axis
         g.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + height + ')')
-        .call(xAxisBar);
+            .attr('class', 'xAxis')
+            .attr('transform', 'translate(' + (margin.left + chartMargin.left) + ',' + (chartHeight) + ')')
+            .call(xAxisBar)
+            .style('opacity', 0);
         g.select('.x.axis').style('opacity', 0);
 
+        g.append('g')
+            .attr('class', 'yAxis')
+            .attr('transform', 'translate(' + (margin.left + chartMargin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            .call(yAxisBar)
+            .style('opacity', 0);
+        g.select('.x.axis').style('opacity', 0);
 
         // count filler word count title
         g.append('text')
-        .attr('class', 'title count-title highlight')
-        .attr('x', width / 2)
-        .attr('y', height / 3)
-        .text('Median Family Expenditures per Capita');
+            .attr('class', 'title exp-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top)
+            .text('Total Monthly Expenditures per capita');
 
         g.append('text')
-        .attr('class', 'sub-title count-title')
-        .attr('x', width / 2)
-        .attr('y', (height / 3) + (height / 5))
-        .text('Weighted average by country');
+            .attr('class', 'sub-title exp-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top + 20)
+            .text('Weighted average of median by country');
+    
+        g.selectAll('.exp-title')
+            .attr('opacity', 0);
 
-        g.selectAll('.count-title')
-        .attr('opacity', 0);
+        g.append('text')
+            .attr('class', 'title food-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top)
+            .text('Total Spending on Food per capita');
+    
+        g.append('text')
+            .attr('class', 'sub-title food-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top + 20)
+            .text('Weighted average of median by country');
 
+        g.selectAll('.food-title')
+            .attr('opacity', 0);
 
 
         // barchart
         // @v4 Using .merge here to ensure
         // new and old data have same attrs applied
-        var bars = g.selectAll('.bar').data(exp_data);
-        var barsE = bars.enter()
-        .append('rect')
-        .attr('class', 'bar');
-        bars = bars.merge(barsE)
-        .attr('x', 0)
-        .attr('y', function (d, i) { return yBarScale(i);})
-        .attr('fill', function (d, i) { return barColors[i]; })
-        .attr('width', 0)
-        .attr('height', yBarScale.bandwidth());
+        var exp_bars = g.selectAll('.exp-bar').data(exp_data);
+        var exp_barsE = exp_bars.enter()
+            .append('rect')
+            .attr('class', 'exp-bar');
+
+        exp_bars = exp_bars.merge(exp_barsE)
+            .attr('x', 0)
+            .attr('y', function (d, i) { return yBarScale(d.type);})
+            .attr('fill', function (d, i) { return barColors[i]; })
+            .attr('width', 0)
+            .attr('height', yBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
 
         var barText = g.selectAll('.bar-text').data(exp_data);
         barText.enter()
-        .append('text')
-        .attr('class', 'bar-text')
-        .text(function (d) { return d.value; })
-        .attr('x', 0)
-        .attr('dx', 15)
-        .attr('y', function (d, i) { return yBarScale(i);})
-        .attr('dy', yBarScale.bandwidth() / 1.2)
-        .style('font-size', '110px')
-        .attr('fill', 'white')
-        .attr('opacity', 0);
+            .append('text')
+            .attr('class', 'bar-text')
+            .text((d,i) => i==1?'No remittances':'Remittances')
+            .attr('x',  margin.left)
+            .attr('dx', 10)
+            .attr('y', function (d, i) { return yBarScale(d.type);})
+            .attr('dy', yBarScale.bandwidth()/2)
+            // .style('font-size', '20px')
+            .attr('fill', '#cbcbce')
+            .attr('opacity', 0)
+            .attr('transform', 'translate(0,' + (chartMargin.top  + margin.top) + ')')
+            ;
+
+        var exp_barNum = g.selectAll('.exp-bar-num').data(exp_data);
+        exp_barNum.enter()
+            .append('text')
+            .attr('class', 'exp-bar-num')
+            .text((d,i) => '$' + d.value.toFixed(1))
+            .attr('x',  margin.left)
+            .attr('dx', d => xBarScale(d.value) - 10)
+            .attr('y', function (d, i) { return yBarScale(d.type);})
+            .attr('dy', yBarScale.bandwidth()/2)
+            .attr('text-anchor','end')
+            // .style('font-size', '20px')
+            .attr('fill', '#cbcbce')
+            .attr('opacity', 0)
+            .attr('transform', 'translate(0,' + (chartMargin.top  + margin.top) + ')')
+            ;
+
+
+
+                // barchart
+        // @v4 Using .merge here to ensure
+        // new and old data have same attrs applied
+        var food_bars = g.selectAll('.food-bar').data(food_data);
+        var food_barsE = food_bars.enter()
+            .append('rect')
+            .attr('class', 'food-bar');
+
+        food_bars = food_bars.merge(food_barsE)
+            .attr('x', 0)
+            .attr('y', function (d, i) { return yBarScale(d.type);})
+            .attr('fill', function (d, i) { return barColors[i]; })
+            .attr('width', 0)
+            .attr('height', yBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        // var food_barText = g.selectAll('.bar-text').data(exp_data);
+        // food_barText.enter()
+        //     .append('text')
+        //     .attr('class', 'bar-text')
+        //     .text((d,i) => i==1?'No remittances':'Remittances')
+        //     .attr('x',  margin.left)
+        //     .attr('dx', 10)
+        //     .attr('y', function (d, i) { return yBarScale(d.type);})
+        //     .attr('dy', yBarScale.bandwidth()/2)
+        //     // .style('font-size', '20px')
+        //     .attr('fill', '#cbcbce')
+        //     .attr('opacity', 0)
+        //     .attr('transform', 'translate(0,' + (chartMargin.top  + margin.top) + ')')
+        //     ;
+
+        var food_barNum = g.selectAll('.food-bar-num').data(food_data);
+        food_barNum.enter()
+            .append('text')
+            .attr('class', 'food-bar-num')
+            .text((d,i) => '$' + d.value.toFixed(1))
+            .attr('x',  margin.left)
+            .attr('dx', d => xBarScale(d.value) - 10)
+            .attr('y', function (d, i) { return yBarScale(d.type);})
+            .attr('dy', yBarScale.bandwidth()/2)
+            .attr('text-anchor','end')
+            // .style('font-size', '20px')
+            .attr('fill', '#cbcbce')
+            .attr('opacity', 0)
+            .attr('transform', 'translate(0,' + (chartMargin.top  + margin.top) + ')')
+            ;
 
     };
 
@@ -174,7 +278,8 @@ var scrollVis = function () {
         // activateFunctions are called each
         // time the active section changes
         activateFunctions[0] = showTitle;
-        activateFunctions[1] = showFillerTitle;
+        activateFunctions[1] = showExpBarChart;
+        activateFunctions[2] = showFoodBarChart;
 
         // updateFunctions are called while
         // in a particular section to update
@@ -182,7 +287,7 @@ var scrollVis = function () {
         // Most sections do not need to be updated
         // for all scrolling and so are set to
         // no-op functions.
-        for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < 3; i++) {
         updateFunctions[i] = function () {};
         }
     };
@@ -202,6 +307,23 @@ var scrollVis = function () {
      *
      */
 
+     function clean(chartType){
+        let svg = d3.select('#vis').select('svg')
+        if (chartType !== "isExpBar") {
+            svg.selectAll('.exp-title').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.exp-bar').transition().duration(300).attr('width', 0);
+            svg.selectAll('.bar-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.exp-bar-num').transition().duration(300).attr('opacity', 0);
+        }
+        if (chartType !== "isFoodBar") {
+            svg.selectAll('.food-title').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.food-bar').transition().duration(300).attr('width', 0);
+            svg.selectAll('.food-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.food-bar-num').transition().duration(300).attr('opacity', 0);
+        }
+
+    }
+
     /**
      * showTitle - initial title
      *
@@ -211,15 +333,7 @@ var scrollVis = function () {
      *
      */
     function showTitle() {
-        g.selectAll('.count-title')
-        .transition()
-        .duration(0)
-        .attr('opacity', 0);
-
-        g.selectAll('.openvis-title')
-        .transition()
-        .duration(600)
-        .attr('opacity', 1.0);
+        clean('none');
     }
 
     /**
@@ -229,34 +343,57 @@ var scrollVis = function () {
      * shows: filler count title
      *
      */
-    function showFillerTitle() {
+    function showExpBarChart() {
+        clean('isExpBar');
 
-        g.selectAll('.count-title')
-        .transition()
-        .duration(600)
-        .attr('opacity', 1.0);
-    }
-    function showBar() {
-        // ensure bar axis is set
-        g.selectAll('.count-title')
-        .transition()
-        .duration(600)
-        .attr('opacity', 0);
+        g.selectAll('.exp-title')
+            .transition()
+            .duration(300)
+            .attr('opacity', 1.0);
 
-        showAxis(xAxisBar);
-    
-        g.selectAll('.bar')
+        g.selectAll('.exp-bar')
           .transition()
           .delay(function (d, i) { return 300 * (i + 1);})
-          .duration(600)
-          .attr('width', function (d) { return xBarScale(d.value); });
+          .duration(300)
+          .attr('width', d => xBarScale(d.value));
     
         g.selectAll('.bar-text')
           .transition()
-          .duration(600)
-          .delay(1200)
+          .duration(300)
           .attr('opacity', 1);
-      }
+
+        g.selectAll('.exp-bar-num')
+          .transition()
+          .duration(300)
+          .attr('opacity', 1);
+    }
+
+    function showFoodBarChart() {
+        clean('isFoodBar');
+
+        g.selectAll('.food-title')
+        .transition()
+        .duration(300)
+        .attr('opacity', 1.0);
+
+        g.selectAll('.food-bar')
+          .transition()
+          .delay(function (d, i) {return 300 * (i + 1);})
+          .duration(300)
+          .attr('width', d => xBarScale(d.value));
+
+        g.selectAll('.food-bar-num')
+          .transition()
+          .duration(300)
+          .attr('opacity', 1);
+
+        g.selectAll('.bar-text')
+          .transition()
+          .duration(300)
+          .attr('opacity', 1);
+
+    }
+
 
     /**
      * showAxis - helper function to
@@ -265,8 +402,22 @@ var scrollVis = function () {
      * @param axis - the axis to show
      *  (xAxisHist or xAxisBar)
      */
-    function showAxis(axis) {
-        g.select('.x.axis')
+
+    function showXAxis(axis) {
+        g.select('.xAxis')
+        .call(axis)
+        .transition().duration(500)
+        .style('opacity', 1);
+    }
+    /**
+     * showAxis - helper function to
+     * display particular xAxis
+     *
+     * @param axis - the axis to show
+     *  (xAxisHist or xAxisBar)
+     */
+    function showYAxis(axis) {
+        g.select('.yAxis')
         .call(axis)
         .transition().duration(500)
         .style('opacity', 1);
@@ -277,13 +428,17 @@ var scrollVis = function () {
      * to hide the axis
      *
      */
-    function hideAxis() {
-        g.select('.x.axis')
-        .transition().duration(500)
+    function hideXAxis() {
+        g.select('.xAxis')
+        .transition().duration(300)
         .style('opacity', 0);
     }
 
-
+    function hideYAxis() {
+        g.select('.yAxis')
+        .transition().duration(300)
+        .style('opacity', 0);
+    }
     /**
      * DATA FUNCTIONS
      *
@@ -298,8 +453,9 @@ var scrollVis = function () {
      */
     function reshapeExp(data, exp_type) {
             let exp_row = data.filter(function (d) { return d.expense_type === exp_type; });
-            console.log(exp_row);
-            return Array(exp_row[0].no_remit, exp_row[0].remit);
+            const exp_data = Array({type:"No Remittances", value:exp_row[0].no_remit},
+                                    {type:"Remittances", value:exp_row[0].remit});
+            return exp_data;
         };
 
     /**

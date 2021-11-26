@@ -54,7 +54,7 @@ body {
 
 p {
     font-family: 'Open Sans', sans-serif;
-    color:#353536;
+    color:#767678;
     font-weight:300;
   }
 
@@ -73,30 +73,53 @@ h1 {
     -webkit-transition: opacity 0.8s;
 }
 
-#vis .title {
-  font-size:120px;
-  text-anchor: middle;
+/* #vis .title .exp-title{
+  font-size:15px;
+  color:black;
+  text-anchor: start;
+} */
+
+#vis .title.exp-title, .title.food-title{
+  font-family: Arial,Helvetica,"san-serif";
+  font-weight: bold;
+
+  font-size:16px;
+  color:black;
+  text-anchor: start;
 }
 
-#vis .sub-title {
-  font-size:80px;
-  text-anchor: middle;
-}
+#vis .sub-title.exp-title, .sub-title.food-title{
+    font-family: "TiemposTextWeb-Regular","Georgia";
+    font-size:14px;
+    color:#767678;
+    text-anchor: start;
+  }
 
-.axis path,
-.axis line {
+#vis .bar-text text {
+    font-family: "TiemposTextWeb-Regular","Georgia";
+    font-size:16px;
+    color:#767678;
+    text-anchor: start;
+    z-index: 1;
+
+  }
+
+
+.xAxis path,
+.xAxis line {
   fill: none;
   stroke: #666;
   shape-rendering: crispEdges;
 }
+.yAxis path,
+.yAxis line {
+    display: none;
+    fill: none;
+    stroke: #666;
+    shape-rendering: crispEdges;
+  }
 
-.highlight {
-  fill: #008080;
-  font-weight: bold;
-}
-
-.cough-arrow {
-  stroke: #000;
-  stroke-width: 4px;
-
+#vis .yAxis text {
+    font-size: 20px;
+    color: white !important;
 }

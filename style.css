@@ -17,7 +17,7 @@
 }
 
 .step {
-  margin-bottom: 200px;
+  margin-bottom: 150px;
   font-family: "TiemposTextWeb-Regular","Georgia";
   font-size: 16px;
   line-height: 23px;
@@ -47,6 +47,12 @@
   /* width: 600px; */
   /* background-color: #ddd; */
 }
+
+#vis text{
+    font-family: "TiemposTextWeb-Regular","Georgia";
+    font-size:14px;
+    color:#767678;
+  }
 
 body {
     background-color: #F3EDDA
@@ -95,12 +101,12 @@ h1 {
     text-anchor: start;
   }
 
-#vis .bar-text text {
+.exp-bar-num text {
     font-family: "TiemposTextWeb-Regular","Georgia";
     font-size:16px;
-    color:#767678;
-    text-anchor: start;
-    z-index: 1;
+    color:#cbcbce;
+    text-anchor: end;
+    /* z-index: 400; */
 
   }
 
@@ -120,6 +126,15 @@ h1 {
   }
 
 #vis .yAxis text {
-    font-size: 20px;
-    color: white !important;
+    font-family: "TiemposTextWeb-Regular","Georgia";
+    font-size: 14px;
+    color: black;
+    text-anchor: end;
+
+}
+
+#vis .xAxis text {
+    font-family: "TiemposTextWeb-Regular","Georgia";
+    font-size: 14px;
+    color: black
 }

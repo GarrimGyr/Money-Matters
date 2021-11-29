@@ -1,53 +1,31 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Scrolling Sections</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+  <title>Radar chart</title>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+	<script src="radar2.js"></script>
+	<style>
+		body {
+		  overflow: hidden;
+		  margin: 0;
+		  font-size: 14px;
+		  font-family: "Helvetica Neue", Helvetica;
+		}
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
-  <link rel="stylesheet" type="text/css" href="style.css"/>
-</head>
-<body>
-<div class="container">
-    <div class="row" id="title">
-        <div class = "col-12">
-            <br><br>
-            <h1> How do Remittances Change Lives? </h1>
-            <p style="text-align: center;"> Daniel Pratama, McKenzie Humann, John Devine </p>
-            <hr>
-            <br><br>
-            <br><br>
-            <br><br>
-            <br><br>
-
-        </div>
+		#chart {
+		  position: absolute;
+		  top: 50px;
+		  left: 100px;
+		}
+	</style>
+  </head>
+  <body>
+    <div id="body">
+	  <div id="chart"></div>
     </div>
 
-    <div id='graphic'>
-        <div id='sections'>
-        <section class="step">
-            <div class="title">Migration and Remittances</div>
-            71% of families in the Northern Triangle that have had a family member 
-            migrate outside of the home country receive remittances.
-        </section>
-        <section class="step">
-            <div class="title">Monthly Expenditures</div>
-            Of the families that have had a family member migrate, 
-            the ones who are receiving remittances spend more money per person 
-            in their household compared to families that are not receiving remittances.
-        </section>
-        <section class="step">
-            <div class="title">Spending on Food</div>
-            This difference in monthly spending can be tied to a greater spending on food per person.
-        </section>
-        </div>
-        <div id='vis'>
-        </div>
-        <div id="extra-space">
-        </div>
-  </div>
-</div>
-<script src="scroller.js"></script>
-<script src="sections.js"></script> 
-</body>
+    <script type="text/javascript" src="script.js"></script>
+
+  </body>
 </html>

@@ -112,6 +112,7 @@ var scrollVis = function () {
         // perform some preprocessing on raw data
         var exp_data = reshapeExp(dataset, 'monthly_expenditure_pc');
         var food_data = reshapeExp(dataset, 'exp_monthly_food_pc')
+        console.log(expDiff(dataset))
 
         var yGroupValues = exp_data.map(d=>d.country);
         var ySubGroupValues = ['No Remittances', 'Remittances'];
@@ -512,6 +513,19 @@ var scrollVis = function () {
 
             return exp_data;
         };
+
+    function expDiff(data) {
+        let temp_data = data.filter(function(d) {return d.expense_type != 'monthly_expenditure_pc'} )
+        let GT = Array();
+        let HND = Array();
+        let SLV = Array();
+        for (let i = 0; i < temp_data.length; i++) {
+            GT.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].gt_noremit, 'Remittances': temp_data[i].gt_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].gt_remit - temp_data[i].gt_noremit) / temp_data[i].gt_noremit})
+            HND.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].hnd_noremit, 'Remittances': temp_data[i].hnd_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].hnd_remit - temp_data[i].hnd_noremit) / temp_data[i].hnd_noremit})
+            SLV.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].slv_noremit, 'Remittances': temp_data[i].slv_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].slv_remit - temp_data[i].slv_noremit) / temp_data[i].slv_noremit})
+        }
+        return Array({'country': 'Guatemala', 'values': GT}, {'country': 'Honduras', 'values': HND}, {'country': 'El Salvador', 'values': SLV})
+    }
 
     /**
      * activate -

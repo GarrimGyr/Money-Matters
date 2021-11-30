@@ -42,12 +42,14 @@ var scrollVis = function () {
     // to get width and y locations.
     // @v4 using new scale type
     var yBarScale = d3.scaleBand()
-        .paddingInner(0.1)
-        .range([0, chartHeight], 0.5, 0.1);
+        .paddingInner(0.2)
+        .range([0, chartHeight], 1, 0.5);
     var ySubBarScale = d3.scaleBand()
         .paddingInner(0.05);
 
-
+    var coughColorScale = d3.scaleLinear()
+        .domain([0, 1.0])
+        .range(['#008080', 'red']);
 
     // You could probably get fancy and
     // use just one axis, modifying the
@@ -112,7 +114,7 @@ var scrollVis = function () {
         // perform some preprocessing on raw data
         var exp_data = reshapeExp(dataset, 'monthly_expenditure_pc');
         var food_data = reshapeExp(dataset, 'exp_monthly_food_pc')
-        console.log(expDiff(dataset))
+        console.log(exp_data)
 
         var yGroupValues = exp_data.map(d=>d.country);
         var ySubGroupValues = ['No Remittances', 'Remittances'];
@@ -122,14 +124,14 @@ var scrollVis = function () {
         var countMax = d3.max(exp_data, function (d) { return d.remit;});
         xBarScale.domain([0, countMax + 5]);
         yBarScale.domain(yGroupValues);
-        ySubBarScale.domain(ySubGroupValues)
-                    .range([0, yBarScale.bandwidth()])
+        // ySubBarScale.domain(ySubGroupValues)
+        //             .range([0, yBarScale.bandwidth()])
 
         // Color is determined just by the index of the bars
         var barColors = d3.scaleOrdinal()
         .domain(ySubGroupValues)
         .range(['#1E3E39','#658C4D']);
-        console.log(barColors('Remittances'))
+        // console.log(barColors('Remittances'))
 
         var exp_data = reshapeExp(dataset, 'monthly_expenditure_pc')
         var food_data = reshapeExp(dataset, 'exp_monthly_food_pc')
@@ -184,90 +186,96 @@ var scrollVis = function () {
         // barchart
         // @v4 Using .merge here to ensure
         // new and old data have same attrs applied
-        var exp_bars = g.selectAll('.exp-bar-group').data(exp_data);
-        var exp_barsE = exp_bars.enter()
-            .append('g')
-            .attr('class', 'exp-bar-group')
-            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
-            .selectAll("rect")
-            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
-            .enter().append("rect").attr('class', 'exp-bar')
-            ;
-
-        exp_barsE
+        var exp_bars_noremit = g.selectAll('.exp-bar-noremit').data(exp_data);
+        var exp_barsE_noremit = exp_bars_noremit.enter()
+            .append('rect')
+            .attr('class', 'exp-bar-noremit');
+        exp_bars_noremit = exp_bars_noremit.merge(exp_barsE_noremit)
             .attr('x', 0)
-            .attr('y', function (d, i) {return ySubBarScale(d.type);})
-            .attr('fill', function (d) {return barColors(d.type); })
+            .attr('y', function (d, i) {return yBarScale(d.country);})
+            .attr('fill', '#1E3E39')
             .attr('width', 0)
-            .attr('height', ySubBarScale.bandwidth())
+            .attr('height', yBarScale.bandwidth())
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
 
-        exp_bars = exp_bars.merge(exp_barsE)
-
-        var exp_barNum = g.selectAll('.exp-bar-num-group').data(exp_data);
-        exp_barNum.enter()
-            .append('g')
-            .attr('class', 'exp-bar-num-group')
-            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
-            .selectAll("text")
-            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
-            .enter().append("text").attr('class', 'exp-bar-num')
-            .text((d,i) => '$' + d.value.toFixed(1))
-            .attr('x',  0)
-            .attr('dx', d => xBarScale(d.value) - 10)
-            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
-            .attr('text-anchor','end')
-            .attr('opacity', 0)
-            .attr('fill', '#cbcbce')
-            .attr('font-size', '14pt')
-            .attr('text-anchor', 'end')
+        var exp_bars_remit = g.selectAll('.exp-bar-remit').data(exp_data);
+        var exp_barsE_remit = exp_bars_remit.enter()
+            .append('rect')
+            .attr('class', 'exp-bar-remit');
+        exp_bars_remit = exp_bars_remit.merge(exp_barsE_remit)
+            .attr('x', function(d) {return xBarScale(d.no_remit);})
+            .attr('y', function (d, i) {return yBarScale(d.country);})
+            .attr('fill', '#658C4D')
+            .attr('width', 0)
+            .attr('height', yBarScale.bandwidth())
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+
+        // var exp_barNum = g.selectAll('.exp-bar-num-group').data(exp_data);
+        // exp_barNum.enter()
+        //     .append('g')
+        //     .attr('class', 'exp-bar-num-group')
+        //     .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+        //     .selectAll("text")
+        //     .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+        //     .enter().append("text").attr('class', 'exp-bar-num')
+        //     .text((d,i) => '$' + d.value.toFixed(1))
+        //     .attr('x',  0)
+        //     .attr('dx', d => xBarScale(d.value) - 10)
+        //     .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
+        //     .attr('text-anchor','end')
+        //     .attr('opacity', 0)
+        //     .attr('fill', '#cbcbce')
+        //     .attr('font-size', '14pt')
+        //     .attr('text-anchor', 'end')
+        //     .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
 
 
 
         // barchart
         // @v4 Using .merge here to ensure
         // new and old data have same attrs applied
-        var food_bars = g.selectAll('.food-bar-group').data(food_data);
-        var food_barsE = food_bars.enter()
-            .append('g')
-            .attr('class', 'food-bar-group')
-            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
-            .selectAll("rect")
-            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
-            .enter().append("rect").attr('class', 'food-bar')
-            ;
+        // var food_bars = g.selectAll('.food-bar-group').data(food_data);
+        // var food_barsE = food_bars.enter()
+        //     .append('g')
+        //     .attr('class', 'food-bar-group')
+        //     .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+        //     .selectAll("rect")
+        //     .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+        //     .enter().append("rect").attr('class', 'food-bar')
+        //     ;
 
-        food_barsE
-            .attr('x', 0)
-            .attr('y', function (d, i) {return ySubBarScale(d.type);})
-            .attr('fill', function (d) {return barColors(d.type); })
-            .attr('width', 0)
-            .attr('height', ySubBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
+        // food_barsE
+        //     .attr('x', 0)
+        //     .attr('y', function (d, i) {return ySubBarScale(d.type);})
+        //     .attr('fill', function (d) {return barColors(d.type); })
+        //     .attr('width', 0)
+        //     .attr('height', ySubBarScale.bandwidth())
+        //     .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+        //     ;
 
-        food_bars = food_bars.merge(food_barsE)
+        // food_bars = food_bars.merge(food_barsE)
 
-        var food_barNum = g.selectAll('.food-bar-num-group').data(food_data);
-        food_barNum.enter()
-            .append('g')
-            .attr('class', 'food-bar-num-group')
-            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
-            .selectAll("text")
-            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
-            .enter().append("text").attr('class', 'food-bar-num')
-            .text((d,i) => '$' + d.value.toFixed(1))
-            .attr('x',  0)
-            .attr('dx', d => xBarScale(d.value) - 10)
-            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
-            .attr('text-anchor','end')
-            .attr('opacity', 0)
-            .attr('fill', '#cbcbce')
-            .attr('font-size', '14pt')
-            .attr('text-anchor', 'end')
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+        // var food_barNum = g.selectAll('.food-bar-num-group').data(food_data);
+        // food_barNum.enter()
+        //     .append('g')
+        //     .attr('class', 'food-bar-num-group')
+        //     .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+        //     .selectAll("text")
+        //     .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+        //     .enter().append("text").attr('class', 'food-bar-num')
+        //     .text((d,i) => '$' + d.value.toFixed(1))
+        //     .attr('x',  0)
+        //     .attr('dx', d => xBarScale(d.value) - 10)
+        //     .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
+        //     .attr('text-anchor','end')
+        //     .attr('opacity', 0)
+        //     .attr('fill', '#cbcbce')
+        //     .attr('font-size', '14pt')
+        //     .attr('text-anchor', 'end')
+        //     .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
 
         // Add one dot in the legend for each name.
         legendDots = g.selectAll("legend-dots")
@@ -277,7 +285,7 @@ var scrollVis = function () {
             .append("circle")
             .attr('class', 'legend-dots')
             .attr("cx", function(d,i){ return chartMargin.left + margin.left + i*150})
-            .attr("cy", visHeight - margin.bottom + 10) // 100 is where the first dot appears. 25 is the distance between dots
+            .attr("cy", visHeight - margin.bottom + 25) // 100 is where the first dot appears. 25 is the distance between dots
             .attr("r", 7)
             .style("fill", function(d){ return barColors(d)})
             .attr('opacity',0)
@@ -289,7 +297,7 @@ var scrollVis = function () {
         .append("text")
             .attr('class', 'legend-labels')
             .attr("x", function(d,i){ return 15 + chartMargin.left + margin.left + i*150})
-            .attr("y", visHeight - margin.bottom + 10)
+            .attr("y", visHeight - margin.bottom + 25)
             .style("fill", 'black')
             .text(function(d){ return d})
             .attr("text-anchor", "left")
@@ -311,7 +319,8 @@ var scrollVis = function () {
         // time the active section changes
         activateFunctions[0] = showTitle;
         activateFunctions[1] = showExpBarChart;
-        activateFunctions[2] = showFoodBarChart;
+        activateFunctions[2] = showExpPointer;
+        activateFunctions[3] = showFoodBarChart;
 
         // updateFunctions are called while
         // in a particular section to update
@@ -319,9 +328,11 @@ var scrollVis = function () {
         // Most sections do not need to be updated
         // for all scrolling and so are set to
         // no-op functions.
-        for (var i = 0; i < 3; i++) {
-        updateFunctions[i] = function () {};
-        }
+        updateFunctions[0] = function () {};
+        updateFunctions[1] = addRemitExp;
+        updateFunctions[2] = function () {};
+        updateFunctions[3] = function () {};
+
     };
 
     /**
@@ -341,12 +352,12 @@ var scrollVis = function () {
 
      function clean(chartType){
         let svg = d3.select('#vis').select('svg')
-        if (chartType !== "isExpBar") {
+        if (chartType !== "isExpBar" & chartType !== 'isExpPointer') {
             hideXAxis()
             hideYAxis()
             svg.selectAll('.exp-title').transition().duration(0).attr('opacity', 0);
-            svg.selectAll('.exp-bar').transition().duration(300).attr('width', 0);
-            svg.selectAll('.exp-bar-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.exp-bar-noremit').transition().duration(300).attr('width', 0);
+            svg.selectAll('.exp-bar-remit').transition().duration(0).attr('width', 0);
             svg.selectAll('.exp-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
@@ -357,7 +368,6 @@ var scrollVis = function () {
             hideYAxis()
             svg.selectAll('.food-title').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.food-bar').transition().duration(300).attr('width', 0);
-            svg.selectAll('.food-bar-text').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.food-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
@@ -386,18 +396,18 @@ var scrollVis = function () {
      */
     function showExpBarChart() {
         clean('isExpBar');
-        // showXAxis(xBarScale);
+        showXAxis(xBarScale);
         showYAxis(yBarScale);
         g.selectAll('.exp-title')
             .transition()
             .duration(300)
             .attr('opacity', 1.0);
 
-        g.selectAll('.exp-bar')
+        g.selectAll('.exp-bar-noremit')
           .transition()
           .delay(function (d, i) { return 200 * (i + 1);})
           .duration(300)
-          .attr('width', function(d) {return xBarScale(d.value);});
+          .attr('width', function(d) {return xBarScale(d.no_remit);});
     
 
         g.selectAll('.exp-bar-num')
@@ -413,6 +423,38 @@ var scrollVis = function () {
         g.selectAll('.legend-labels')
           .transition()
           .duration(300)
+          .attr('opacity', 1);
+    }
+
+    function showExpPointer() {
+        clean('isExpPointer');
+        showXAxis(xBarScale);
+        showYAxis(yBarScale);
+        g.selectAll('.exp-title')
+            .transition()
+            .duration(0)
+            .attr('opacity', 1.0);
+
+        g.selectAll('.exp-bar-noremit')
+          .transition()
+        //   .delay(function (d, i) { return 200 * (i + 1);})
+          .duration(0)
+          .attr('width', function(d) {return xBarScale(d.no_remit);});
+    
+
+        g.selectAll('.exp-bar-num')
+          .transition()
+          .duration(0)
+          .attr('opacity', 1);
+
+        g.selectAll('.legend-dots')
+          .transition()
+          .duration(0)
+          .attr('opacity', 1);
+
+        g.selectAll('.legend-labels')
+          .transition()
+          .duration(0)
           .attr('opacity', 1);
     }
 
@@ -492,6 +534,22 @@ var scrollVis = function () {
         svg.select('.yAxis')
         .transition().duration(300)
         .style('opacity', 0);
+    }
+
+      /**
+     * addRemitExp - adds remittance numbers to monthly expenditure chart
+     *
+     * @param progress - 0.0 - 1.0 -
+     *  how far user has scrolled in section
+     */
+    function addRemitExp(progress) {
+
+        g.selectAll('.exp-bar-remit')
+            .transition()
+            .delay(function (d, i) { return 200 * (i + 1);})
+            .duration(0)
+            .attr('width', function(d) {console.log(xBarScale(d.no_remit) + (progress * (xBarScale(d.remit) - xBarScale(d.no_remit)))); 
+                return (progress * (xBarScale(d.remit) - xBarScale(d.no_remit)));});
     }
     /**
      * DATA FUNCTIONS

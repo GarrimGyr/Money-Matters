@@ -87,7 +87,7 @@ h1 {
   text-anchor: start;
 } */
 
-#vis .title.exp-title, .title.food-title, .title.health-title{
+#vis .title.exp-title, .title.food-title, .title.health-title, .title.save-title{
   font-family: Arial,Helvetica,"san-serif";
   font-weight: bold;
 
@@ -96,7 +96,7 @@ h1 {
   text-anchor: start;
 }
 
-#vis .sub-title.exp-title, .sub-title.food-title, .sub-title.health-title{
+#vis .sub-title.exp-title, .sub-title.food-title, .sub-title.health-title, .sub-title.save-title{
     font-family: "TiemposTextWeb-Regular","Georgia";
     font-size:14px;
     color:#767678;

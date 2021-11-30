@@ -113,15 +113,16 @@ var scrollVis = function () {
 
         // perform some preprocessing on raw data
         var exp_data = reshapeExp(dataset, 'monthly_expenditure_pc');
-        var food_data = reshapeExp(dataset, 'exp_monthly_food_pc')
-        console.log(exp_data)
+        var food_data = reshapeExp(dataset, 'exp_monthly_food_pc');
+        var save_data = reshapeExp(dataset, 'exp_6months_savings_pc');
+        var health_data = reshapeExp(dataset, 'exp_6months_health_pc');
 
         var yGroupValues = exp_data.map(d=>d.country);
         var ySubGroupValues = ['No Remittances', 'Remittances'];
 
 
         // set the bar scale's domain
-        var countMax = d3.max(exp_data, function (d) { return d.remit;});
+        var countMax = d3.max(save_data, function (d) { return d.remit;});
         xBarScale.domain([0, countMax + 5]);
         yBarScale.domain(yGroupValues);
         // ySubBarScale.domain(ySubGroupValues)
@@ -131,12 +132,7 @@ var scrollVis = function () {
         var barColors = d3.scaleOrdinal()
         .domain(ySubGroupValues)
         .range(['#1E3E39','#658C4D']);
-        // console.log(barColors('Remittances'))
 
-        var exp_data = reshapeExp(dataset, 'monthly_expenditure_pc')
-        var food_data = reshapeExp(dataset, 'exp_monthly_food_pc')
-        var save_data = reshapeExp(dataset, 'exp_6months_savings_pc')
-        var health_data = reshapeExp(dataset, 'exp_6months_health_pc')
 
         // axis
         g.append('g')
@@ -188,7 +184,7 @@ var scrollVis = function () {
             .attr('class', 'title health-title')
             .attr('x', margin.left)
             .attr('y', margin.top)
-            .text('Monthly Spending on medical care per capita');
+            .text('Spending on Health Care in last six months, per capita');
     
         g.append('text')
             .attr('class', 'sub-title health-title')
@@ -197,6 +193,21 @@ var scrollVis = function () {
             .text('Median by country');
 
         g.selectAll('.health-title')
+            .attr('opacity', 0);
+
+        g.append('text')
+            .attr('class', 'title save-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top)
+            .text('Amount Saved in last six months, per capita');
+    
+        g.append('text')
+            .attr('class', 'sub-title save-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top + 20)
+            .text('Median by country');
+
+        g.selectAll('.save-title')
             .attr('opacity', 0);
 
 
@@ -235,7 +246,7 @@ var scrollVis = function () {
             .attr('class', 'exp-bar-num')
             .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
             .attr('x',  0)
-            .attr('dx', d => xBarScale(d.no_remit) + (xBarScale(d.remit) - xBarScale(d.no_remit))/2 - 15)
+            .attr('dx', d => xBarScale(d.no_remit) + (xBarScale(d.remit) - xBarScale(d.no_remit))/2 - 20)
             .attr('y', function (d, i) { return (yBarScale(d.country) + (0.5* yBarScale.bandwidth()));})
             .attr('text-anchor','end')
             .attr('opacity', 0)
@@ -334,6 +345,50 @@ var scrollVis = function () {
             .attr('text-anchor', 'start')
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
 
+        // barchart
+        // @v4 Using .merge here to ensure
+        // new and old data have same attrs applied
+        var save_bars_noremit = g.selectAll('.save-bar-noremit').data(save_data);
+        var save_barsE_noremit = save_bars_noremit.enter()
+            .append('rect')
+            .attr('class', 'save-bar-noremit');
+        save_bars_noremit = save_bars_noremit.merge(save_barsE_noremit)
+            .attr('x', 0)
+            .attr('y', function (d, i) {return yBarScale(d.country);})
+            .attr('fill', '#1E3E39')
+            .attr('width', 0)
+            .attr('height', yBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        var save_bars_remit = g.selectAll('.save-bar-remit').data(save_data);
+        var save_barsE_remit = save_bars_remit.enter()
+            .append('rect')
+            .attr('class', 'save-bar-remit');
+        save_bars_remit = save_bars_remit.merge(save_barsE_remit)
+            .attr('x', function(d) {return xBarScale(d.no_remit);})
+            .attr('y', function (d, i) {return yBarScale(d.country);})
+            .attr('fill', '#658C4D')
+            .attr('width', 0)
+            .attr('height', yBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        var save_barText = g.selectAll('.save-bar-num').data(save_data);
+            save_barText.enter()
+            .append('text')
+            .attr('class', 'save-bar-num')
+            .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
+            .attr('x',  0)
+            .attr('dx', d => xBarScale(d.no_remit) + (xBarScale(d.remit) - xBarScale(d.no_remit))/2 - 20)
+            .attr('y', function (d, i) { return (yBarScale(d.country) + (0.5* yBarScale.bandwidth()));})
+            .attr('text-anchor','end')
+            .attr('opacity', 0)
+            .attr('fill', '#cbcbce')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
         // Add one dot in the legend for each name.
         legendDots = g.selectAll("legend-dots")
         .data(ySubGroupValues);
@@ -379,6 +434,7 @@ var scrollVis = function () {
         activateFunctions[2] = showExpPointer;
         activateFunctions[3] = showFoodBarChart;
         activateFunctions[4] = showHealthBarChart;
+        activateFunctions[5] = showSaveBarChart;
 
         // updateFunctions are called while
         // in a particular section to update
@@ -393,6 +449,7 @@ var scrollVis = function () {
         updateFunctions[2] = function () {};
         updateFunctions[3] = function () {};
         updateFunctions[4] = function () {};
+        updateFunctions[5] = function () {};
 
     };
 
@@ -442,6 +499,17 @@ var scrollVis = function () {
             svg.selectAll('.health-bar-noremit').transition().duration(300).attr('width', 0);
             svg.selectAll('.health-bar-remit').transition().duration(0).attr('width', 0);
             svg.selectAll('.health-bar-num').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
+        }
+
+        if (chartType !== "isSaveBar") {
+            hideXAxis()
+            hideYAxis()
+            svg.selectAll('.save-title').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.save-bar-noremit').transition().duration(300).attr('width', 0);
+            svg.selectAll('.save-bar-remit').transition().duration(0).attr('width', 0);
+            svg.selectAll('.save-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
         }
@@ -574,6 +642,46 @@ var scrollVis = function () {
           .attr('width', function(d) {return (xBarScale(d.remit) - xBarScale(d.no_remit));});
 
         g.selectAll('.health-bar-num')
+          .transition()
+          .delay(function (d, i) { return 400 + 300 * (i + 1);})
+          .duration(1000)
+          .attr('opacity', 1);
+
+        g.selectAll('.legend-dots')
+          .transition()
+          .duration(300)
+          .attr('opacity', 1);
+
+        g.selectAll('.legend-labels')
+          .transition()
+          .duration(300)
+          .attr('opacity', 1);
+    }
+
+    function showSaveBarChart() {
+        clean('isSaveBar');
+        showXAxis(xBarScale);
+
+        showYAxis(yBarScale);
+
+        g.selectAll('.save-title')
+        .transition()
+        .duration(300)
+        .attr('opacity', 1.0);
+
+        g.selectAll('.save-bar-noremit')
+          .transition()
+          .delay(function (d, i) { return 200 * (i + 1);})
+          .duration(300)
+          .attr('width', function(d) {return xBarScale(d.no_remit);});
+ 
+        g.selectAll('.save-bar-remit')
+          .transition()
+          .delay(function (d, i) { return 400 + 300 * (i + 1);})
+          .duration(1000)
+          .attr('width', function(d) {return (xBarScale(d.remit) - xBarScale(d.no_remit));});
+
+        g.selectAll('.save-bar-num')
           .transition()
           .delay(function (d, i) { return 400 + 300 * (i + 1);})
           .duration(1000)

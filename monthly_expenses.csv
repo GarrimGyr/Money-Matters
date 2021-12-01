@@ -1,0 +1,34 @@
+﻿group,axis,value,value_1,expenses,label,color
+Guatemala,food_pc,0.333333333, 33.33 ,Guatemala_food,food,#1e3e39
+Guatemala,drinking_water_pc,0.108333333, 10.83 ,Guatemala_drinking,drinking,#1e3e39
+Guatemala,water_pc,0.577464789, 57.75 ,Guatemala_water,water,#1e3e39
+Guatemala,electric_power_pc,0.5, 50.00 ,Guatemala_electric,electric,#1e3e39
+Guatemala,hygiene_pc,0.632653061, 63.27 ,Guatemala_hygiene,hygiene,#1e3e39
+Guatemala,transport_pc,0.166666667, 16.67 ,Guatemala_transport,transport,#1e3e39
+Guatemala,communication_pc,0.6, 60.00 ,Guatemala_communication,communication,#1e3e39
+Guatemala,fuel_pc,-0.031055901,-3.11,Guatemala_fuel,fuel,#1e3e39
+,,, -   ,_1,,
+,,, -   ,_2,,
+,,, -   ,_3,,
+Honduras,food_pc,0.208333333, 20.83 ,Honduras_food,food,#385941
+Honduras,drinking_water_pc,1.16, 116.00 ,Honduras_drinking,drinking,#385941
+Honduras,water_pc,0.25, 25.00 ,Honduras_water,water,#385941
+Honduras,electric_power_pc,0.5625, 56.25 ,Honduras_electric,electric,#385941
+Honduras,hygiene_pc,0.125, 12.50 ,Honduras_hygiene,hygiene,#385941
+Honduras,transport_pc,1, 100.00 ,Honduras_transport,transport,#385941
+Honduras,communication_pc,0.8, 80.00 ,Honduras_communication,communication,#385941
+Honduras,fuel_pc,2.692307692, 269.23 ,Honduras_fuel,fuel,#385941
+,,, -   ,_4,,
+,,, -   ,_5,,
+,,, -   ,_6,,
+El Salvador,food_pc,0.25, 25.00 ,El Salvador_food,food,#658c4d
+El Salvador,drinking_water_pc,0.666666667, 66.67 ,El Salvador_drinking,drinking,#658c4d
+El Salvador,water_pc,0, -   ,El Salvador_water,water,#658c4d
+El Salvador,electric_power_pc,-0.08,-8.00,El Salvador_electric,electric,#658c4d
+El Salvador,hygiene_pc,0.2, 20.00 ,El Salvador_hygiene,hygiene,#658c4d
+El Salvador,transport_pc,0.2, 20.00 ,El Salvador_transport,transport,#658c4d
+El Salvador,communication_pc,0.111111111, 11.11 ,El Salvador_communication,communication,#658c4d
+El Salvador,fuel_pc,-0.081632653,-8.16,El Salvador_fuel,fuel,#658c4d
+,,,0,_7,,
+,,,0,_8,,
+,,,0,_9,,

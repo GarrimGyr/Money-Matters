@@ -63,7 +63,7 @@ h1 {
     font-size:70px;
     font-weight:250;
     line-height:1.3;
-  
+
   }
 
 #title {
@@ -95,8 +95,30 @@ h1 {
   font-weight: bold;
 }
 
+<<<<<<< Updated upstream
 .cough-arrow {
   stroke: #000;
   stroke-width: 4px;
 
 }
+=======
+#vis .xAxis text {
+    font-family: "TiemposTextWeb-Regular","Georgia";
+    font-size: 14px;
+    color: black
+}
+
+#tooltip {
+  position: absolute;
+  width: 250px;
+  height: 30px;
+  padding: 5px;
+  background: white;
+  border: solid gray 1px;
+  z-index: 1;
+}
+
+#tooltip.hidden{
+  display:none;
+}
+>>>>>>> Stashed changes

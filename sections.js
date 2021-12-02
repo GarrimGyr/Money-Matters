@@ -479,6 +479,7 @@ var scrollVis = function () {
         activateFunctions[3] = showFoodBarChart;
         activateFunctions[4] = showHealthBarChart;
         activateFunctions[5] = showSaveBarChart;
+        activateFunctions[6] = showSpiderChart;
 
         // updateFunctions are called while
         // in a particular section to update
@@ -550,6 +551,11 @@ var scrollVis = function () {
             svg.selectAll('.save-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.save-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.save-bar-diff-text').transition().duration(300).attr('opacity', 0);
+
+        }
+
+        if (chartType !== "isSpiderChart") {
+
 
         }
 
@@ -701,6 +707,12 @@ var scrollVis = function () {
           .duration(1000)
           .attr('opacity', 1);
 
+    }
+
+    function showSpiderChart() {
+        clean('isSpiderChart');
+
+        // add Spider chart elements to appear
     }
 
 

@@ -7,14 +7,16 @@
 var scrollVis = function () {
   // constants to define the size
   // and margins of the vis area.
-    var visWidth = 600;
-    var visHeight = 500;
-    var margin = { top: 200, left: 30, bottom: 50, right: 10 };
+    var visWidth = 700;
+    var visHeight = 700;
+    var margin = { top: 200, left: 30, bottom: 150, right: 10 };
 
     var chartMargin = {top: 30, left: 85, bottom: 10, right: 10};
     var chartWidth = visWidth - margin.left - margin.right - chartMargin.left - chartMargin.right;
     var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom; 
 
+    var innerRadius = 120;
+    var outerRadius = Math.min(visWidth, visHeight) / 2;   // the outerRadius goes from the middle of the SVG area to the border
     // Keep track of which visualization
     // we are on and which was the last
     // index activated. When user scrolls
@@ -59,6 +61,21 @@ var scrollVis = function () {
     var yAxisBar = d3.axisLeft()
         .scale(yBarScale);
 
+    // Scales
+    var rad_x = d3.scaleBand()
+        .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
+        .align(0)                  // This does nothing
+    var rad_y = d3.scaleRadial()
+        .range([innerRadius, outerRadius])   // Domain will be define later.
+        .domain([0,400]); // Domain of Y is from 0 to the max seen in the data
+
+    //scale
+    var radialScale = d3.scaleLinear()
+        .domain([0,300])
+        .range([innerRadius,outerRadius]);
+    var ticks = [0,50,100,150,200];
+    var ticks2 = [0];
+
     // When scrolling to a new section
     // the activation function for that
     // section is called.
@@ -77,9 +94,9 @@ var scrollVis = function () {
      *  example, we will be drawing it in #vis
      */
     var chart = function (selection) {
-        selection.each(function (dataset) {
+        selection.each(function (all_data) {
         // create svg and give it a width and height
-        svg = d3.select(this).selectAll('svg').data([dataset]);
+        svg = d3.select(this).selectAll('svg').data(all_data);
         var svgE = svg.enter().append('svg');
         // @v4 use merge to combine enter and existing selection
         svg = svg.merge(svgE);
@@ -89,13 +106,12 @@ var scrollVis = function () {
 
         svg.append('g');
 
-
         // this group element will be used to contain all
         // other elements.
         g = svg.select('g')
             // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-        setupVis(dataset);
+        setupVis(all_data);
 
         setupSections();
         });
@@ -106,13 +122,18 @@ var scrollVis = function () {
      * setupVis - creates initial elements for all
      * sections of the visualization.
      */
-    var setupVis = function (dataset) {
+    var setupVis = function (all_data) {
+        all_data = all_data[0].data
+        var bar_dataset = all_data.filter(function (d) { return d.chartType === 'bar'; });
+        bar_dataset = bar_dataset[0].data;
+        var spider_dataset = all_data.filter(function (d) { return d.chartType === 'spider'; });
+        spider_dataset = spider_dataset[0].data;
 
         // perform some preprocessing on raw data
-        var exp_data = reshapeExp(dataset, 'monthly_expenditure_pc');
-        var food_data = reshapeExp(dataset, 'exp_monthly_food_pc');
-        var save_data = reshapeExp(dataset, 'exp_6months_savings_pc');
-        var health_data = reshapeExp(dataset, 'exp_6months_health_pc');
+        var exp_data = reshapeExp(bar_dataset, 'monthly_expenditure_pc');
+        var food_data = reshapeExp(bar_dataset, 'exp_monthly_food_pc');
+        var save_data = reshapeExp(bar_dataset, 'exp_6months_savings_pc');
+        var health_data = reshapeExp(bar_dataset, 'exp_6months_health_pc');
 
         var yGroupValues = exp_data.map(d=>d.country);
         var ySubGroupValues = ['No Remittances', 'Remittances'];
@@ -125,6 +146,9 @@ var scrollVis = function () {
         ySubBarScale.domain(ySubGroupValues)
                     .range([0, yBarScale.bandwidth()])
 
+        rad_x.domain(spider_data.map(d => d.axis)); // The domain of the X axis is the list of states.
+
+
         // Color is determined just by the index of the bars
         domain_combos = [];
         for (let i = 0; i < yGroupValues.length; i++) {
@@ -136,6 +160,62 @@ var scrollVis = function () {
         var barColors = d3.scaleOrdinal()
         .domain(domain_combos)
         .range(['#056FB0','#033F63','#9DD977','#6F9954','#48BDAF','#2B7068']);
+
+        // radial chart
+        var circles = g.selectAll('.circles').data(ticks);
+        circles.enter()
+            .append('circle')
+            .attr('class', 'circles')
+            .attr("cx", 0)
+            .attr("cy", 0)
+            .attr("fill", "none")
+            .attr("stroke", "gray")
+            .attr("r", d=> radialScale(d))
+            .attr('opacity',0)
+            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+
+        var circle_text = g.selectAll('.circleLabels').data(ticks);
+        circle_text.enter()
+            .append("text")
+            .attr('class', 'circleLabels')
+            .attr("x", 0 )
+            .attr("y", d => 10 - radialScale(d) )
+            .text(d => d.toString())
+            .attr("transform", function(t) { return "rotate(-20)"})
+            .attr("text-anchor","middle")
+            .style("font-size", "10px")
+            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+
+            ;
+
+        var rad_bars = g.selectAll('.rad-bars').data(spider_dataset);
+        rad_bars.enter()
+            .append('path')
+            .attr('class','rad-bars')
+            .attr("fill", d => d['color'])
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                .innerRadius(innerRadius)
+                .outerRadius(d => rad_y(d['value_diff']))
+                .startAngle(d => rad_x(d.axis))
+                .endAngle(d => rad_x(d.axis) + rad_x.bandwidth())
+                .padAngle(0.01)
+                .padRadius(innerRadius))
+            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+
+
+        var rad_labels = g.selectAll('.rad-labels').data(spider_dataset)
+        rad_labels.enter()
+            .append('g')
+            .attr('class', 'rad-labels')
+            .attr("text-anchor", function(d) { return (rad_x(d.axis) + rad_x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
+            .attr("transform", function(d) { return "rotate(" + ((rad_x(d.axis) + rad_x.bandwidth() / 2) * 180 / Math.PI -90) + ")"+"translate(" + (rad_y(d['value_diff']<0)+150 + visWidth/2) + "," +  10 + ")"; })
+            .append("text")
+            .attr("transform", function(d) { return (rad_x(d.axis) + rad_x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
+            .text(function(d) { return (d.expenses); })
+            .style("font-size", "12px")
+            .attr("alignment-baseline", "middle")
+            // .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+            ;
 
         // axis
         g.append('g')
@@ -248,7 +328,7 @@ var scrollVis = function () {
             .selectAll("text")
             .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
             .enter().append("text").attr('class', 'exp-bar-num')
-            .text((d,i) => '$' + d.value.toFixed(1))
+            .text(function (d, i) {return '$' + d.value.toFixed(1)})
             .attr('x',  xBarScale(1))
             .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
             .attr('opacity', 0)
@@ -556,7 +636,10 @@ var scrollVis = function () {
         }
 
         if (chartType !== "isSpiderChart") {
-
+            svg.selectAll('.circles').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.circleLabels').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.rad-bars').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.rad-labels').transition().duration(0).attr('opacity', 0);
 
         }
 
@@ -713,6 +796,28 @@ var scrollVis = function () {
     function showSpiderChart() {
         clean('isSpiderChart');
 
+        g.selectAll('.circles')
+            .transition()
+            .duration(100)
+            .attr('opacity',1);
+
+        g.selectAll('.circleLabels')
+            .transition()
+            .duration(100)
+            .attr('opacity',1);
+
+        g.selectAll('.rad-bars')
+            .transition()
+            .ease(d3.easeBounce)
+            .duration(600)
+            .delay(300)          
+            .attr('opacity',1);
+
+        g.selectAll('.rad-labels')
+            .transition()
+            .duration(100)
+            .attr('opacity',1);
+
         // add Spider chart elements to appear
     }
 
@@ -798,18 +903,18 @@ var scrollVis = function () {
             return exp_data;
         };
 
-    function expDiff(data) {
-        let temp_data = data.filter(function(d) {return d.expense_type != 'monthly_expenditure_pc'} )
-        let GT = Array();
-        let HND = Array();
-        let SLV = Array();
-        for (let i = 0; i < temp_data.length; i++) {
-            GT.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].gt_noremit, 'Remittances': temp_data[i].gt_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].gt_remit - temp_data[i].gt_noremit) / temp_data[i].gt_noremit})
-            HND.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].hnd_noremit, 'Remittances': temp_data[i].hnd_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].hnd_remit - temp_data[i].hnd_noremit) / temp_data[i].hnd_noremit})
-            SLV.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].slv_noremit, 'Remittances': temp_data[i].slv_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].slv_remit - temp_data[i].slv_noremit) / temp_data[i].slv_noremit})
-        }
-        return Array({'country': 'Guatemala', 'values': GT}, {'country': 'Honduras', 'values': HND}, {'country': 'El Salvador', 'values': SLV})
-    }
+    // function expDiff(data) {
+    //     let temp_data = data.filter(function(d) {return d.expense_type != 'monthly_expenditure_pc'} )
+    //     let GT = Array();
+    //     let HND = Array();
+    //     let SLV = Array();
+    //     for (let i = 0; i < temp_data.length; i++) {
+    //         GT.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].gt_noremit, 'Remittances': temp_data[i].gt_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].gt_remit - temp_data[i].gt_noremit) / temp_data[i].gt_noremit})
+    //         HND.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].hnd_noremit, 'Remittances': temp_data[i].hnd_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].hnd_remit - temp_data[i].hnd_noremit) / temp_data[i].hnd_noremit})
+    //         SLV.push({'expense_type':temp_data[i].expense_type, 'No Remittances': temp_data[i].slv_noremit, 'Remittances': temp_data[i].slv_remit, 'diff': temp_data[i].gt_remit - temp_data[i].gt_noremit, 'percDiff': (temp_data[i].slv_remit - temp_data[i].slv_noremit) / temp_data[i].slv_noremit})
+    //     }
+    //     return Array({'country': 'Guatemala', 'values': GT}, {'country': 'Honduras', 'values': HND}, {'country': 'El Salvador', 'values': SLV})
+    // }
 
     /**
      * activate -
@@ -849,49 +954,63 @@ var scrollVis = function () {
      *
      * @param data - loaded tsv data
      */
-    function display(data) {
-    // create a new plot and
-    // display it
-    var plot = scrollVis();
-    d3.select('#vis')
-        .datum(data)
-        .call(plot);
+    function display(all_data) {
+        // create a new plot and
+        // display it
+        var plot = scrollVis();
+        d3.select('#vis')
+            .datum(all_data)
+            .call(plot);
 
-    // setup scroll functionality
-    var scroll = scroller()
-        .container(d3.select('#graphic'));
+        // setup scroll functionality
+        var scroll = scroller()
+            .container(d3.select('#graphic'));
 
-    // pass in .step selection as the steps
-    scroll(d3.selectAll('.step'));
+        // pass in .step selection as the steps
+        scroll(d3.selectAll('.step'));
 
-    // setup event handling
-    scroll.on('active', function (index) {
-        // highlight current step text
-        d3.selectAll('.step')
-        .style('opacity', function (d, i) { return i === index ? 1 : 0.1; });
+        // setup event handling
+        scroll.on('active', function (index) {
+            // highlight current step text
+            d3.selectAll('.step')
+            .style('opacity', function (d, i) { return i === index ? 1 : 0.1; });
 
-        // activate current section
-        plot.activate(index);
+            // activate current section
+            plot.activate(index);
     });
 
     scroll.on('progress', function (index, progress) {
         plot.update(index, progress);
-    });
+    });``
     }
 
 // load data and display
-d3.csv('website_data/expenditures.csv', function(d){
-    return {
-        expense_type: d.variable,
-        gt_noremit: +d.GT_noremit,
-        gt_remit: +d.GT_remit,
-        hnd_noremit: +d.HND_noremit,
-        hnd_remit: +d.HND_remit,        
-        slv_noremit: +d.SLV_noremit,
-        slv_remit: +d.SLV_remit
-    };
-}).then(data => {
-    dataset = data
-    console.log(data)
-    display(dataset)
+Promise.all([
+    d3.csv('website_data/expenditures.csv', function(d){
+            return {
+                expense_type: d.variable,
+                gt_noremit: +d.GT_noremit,
+                gt_remit: +d.GT_remit,
+                hnd_noremit: +d.HND_noremit,
+                hnd_remit: +d.HND_remit,        
+                slv_noremit: +d.SLV_noremit,
+                slv_remit: +d.SLV_remit
+            }}),
+    d3.csv('website_data/aggregate_expenditures.csv', function(d) {
+        return {
+            axis: d.axis,
+            color: d.color,
+            country: d.country,
+            expenses: d.expenses,
+            value_diff: +d.value_diff,
+            value_noremit: +d.value_noremit,
+            value_remit: +d.value_remit
+        }
+    }),
+]).then(function(files) {
+    bar_data = files[0]
+    spider_data = files[1]
+    all_data = Array({data: Array({chartType: 'bar', data:bar_data}, {chartType: 'spider',data:spider_data})});
+
+    display(all_data)
 })

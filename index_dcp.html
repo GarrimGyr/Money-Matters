@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+
+<head>
+  <title>Scrolling Sections</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="style.css"/>
+
+  </style>
+</head>
+<body>
+<div class="container">
+    <div class="row" id="title">
+        <div class = "col-12">
+            <br><br>
+            <h1> How do Remittances Change Lives? </h1>
+            <!-- <p style="text-align: center;"> Daniel Pratama, McKenzie Humann, John Devine </p> -->
+            <hr>
+            <br>
+        </div>
+    </div>
+
+<div class="container">
+    <div class="row" id="title">
+        <div class = "col-4">
+          <section class="step">
+              <div class="title">Expenditure Breakdown</div>
+              Breakdown per expenditure per country Breakdown per expenditure per country Breakdown per expenditure per country Breakdown per expenditure per country
+          </section>
+          </div>
+          <div class = "col-8">
+            <section class="step">
+                <div class="title">Radar Chart</div>
+                <div id="my_dataviz"></div>
+                <div id="tooltip" class="hidden">
+                  <p>
+                      <span id="value">100</span>
+                  </p>
+                <script>
+
+                // set the dimensions and margins of the graph
+                const margin = {top: 10, right: 10, bottom: 10, left: 10},
+                    width = 700 - margin.left - margin.right,
+                    height = 700 - margin.top - margin.bottom,
+                    innerRadius = 120,
+                    outerRadius = Math.min(width, height) / 2;   // the outerRadius goes from the middle of the SVG area to the border
+
+                // append the svg object
+                const svg = d3.select("#my_dataviz")
+                  .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                  .append("g")
+                    .attr("transform", `translate(${width/2+margin.left}, ${height/2+margin.top})`);
+
+                d3.csv("data/expenditures_agregate.csv").then( function(data) {
+
+                  // Scales
+                  const x = d3.scaleBand()
+                      .range([0, 2 * Math.PI])    // X axis goes from 0 to 2pi = all around the circle. If I stop at 1Pi, it will be around a half circle
+                      .align(0)                  // This does nothing
+                      .domain(data.map(d => d.axis)); // The domain of the X axis is the list of states.
+                  const y = d3.scaleRadial()
+                      .range([innerRadius, outerRadius])   // Domain will be define later.
+                      .domain([0,400]); // Domain of Y is from 0 to the max seen in the data
+
+                  //scale
+                      let radialScale = d3.scaleLinear()
+                      .domain([0,300])
+                      .range([innerRadius,outerRadius]);
+                      let ticks = [0,50,100,150,200];
+                      let ticks2 = [0];
+                  //circle
+                      ticks.forEach(t => svg.append("circle")
+                      .attr("cx", 0)
+                      .attr("cy", 0)
+                      .attr("fill", "none")
+                      .attr("stroke", "gray")
+                      .attr("r", radialScale(t))
+                      );
+
+
+
+                  //numbering on each circle
+                      ticks.forEach(t => svg.append("text")
+                      .attr("x", 0 )
+                      .attr("y", 10 - radialScale(t) )
+                      .text(t.toString())
+                      .attr("transform", function(t) { return "rotate(-20)"})
+                      .attr("text-anchor","middle")
+                      .style("font-size", "10px")
+                      );
+
+
+
+                  // Add the bars
+                  svg.append("g")
+                    .selectAll("path")
+                    .data(data)
+                    .join("path")
+                      .attr("fill", d => d['color'])
+                      .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                          .innerRadius(innerRadius)
+                          .outerRadius(d => y(d['value_diff']))
+                          .startAngle(d => x(d.axis))
+                          .endAngle(d => x(d.axis) + x.bandwidth())
+                          .padAngle(0.01)
+                          .padRadius(innerRadius))
+
+
+                          .on("mouseover", function(event, d) {
+                            d3.select("#tooltip")
+                              .style("left", (event.pageX-650) + "px" )
+                              .style("top", (event.pageY-900) + "px")
+                              .select("#value")
+                              .data(data)
+                              .html("<p>"  + String(d.value_diff) +  "% " + String(d.expenses) + " expenses increase per month " + "<br>" +
+                               "household with remittances: " + String(d.value_remit) + " $ " + "<br>" +
+                               "household without remittaces: " + String(d.value_noremit) + " $ " + "</p>")
+                               .style("font-size", "11px")
+
+                          d3.select("#tooltip")
+                          .classed("hidden", false);
+                          })
+
+                          .on("mouseout", function() {
+                          d3.select("#tooltip")
+                          .classed("hidden", true);
+                          });
+
+                          svg.selectAll('path')
+                            .transition()
+                            .ease(d3.easeBounce)
+                            .duration(600)
+                            .delay(1200);
+
+
+
+                          //zero line
+                              ticks2.forEach(t => svg.append("circle")
+                              .attr("cx", 0)
+                              .attr("cy", 0)
+                              .attr("fill", "none")
+                              .attr("stroke", "black")
+                              .attr("r", radialScale(t))
+                              );
+
+
+
+                  // Add the expensess
+                   svg.append("g")
+                      .selectAll("g")
+                      .data(data)
+                      .join("g")
+                        //.attr("text-anchor", "middle")
+                        //.attr("transform", function(d) { return "rotate(" + ((x(d.axis) + x.bandwidth() / 2) * 180 / Math.PI - 90) + ")translate(" + innerRadius*0.7 + ",0)"; })
+                        .attr("text-anchor", function(d) { return (x(d.axis) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
+                        .attr("transform", function(d) { return "rotate(" + ((x(d.axis) + x.bandwidth() / 2) * 180 / Math.PI -90) + ")"+"translate(" + (y(d['value_diff']<0)+150) + ",0)"; })
+                        .append("text")
+                          //.text(function(d){return(d.expenses)})
+                          .attr("transform", function(d) { return (x(d.axis) + x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
+                          //.attr("transform", function(d) { return (x(d.axis) + x.bandwidth() / 2 + Math.PI / 2) % (2 * Math.PI) < Math.PI ? "rotate(90)translate(0,16)" : "rotate(-90)translate(0,-9)"; })
+                          .text(function(d) { return (d.expenses); })
+                          .style("font-size", "12px")
+                          .attr("alignment-baseline", "middle");
+
+                    const country = [["Guatemala",'#033F63'], ["El Salvador",'#2B7068'],["Honduras",'#6F9954'] ]
+
+
+                //legend
+                        svg.append("g")
+                        .selectAll("rect")
+                            .data(country)
+                            .enter()
+                            .append("rect")
+                                .attr("y", (d, i) => (i * 25 + 250))
+                                .attr("x", 200)
+                                .attr("width", 20)
+                                .attr("height", 20)
+                                .attr("fill", d=>d[1]);
+
+                          svg.append("g")
+                            .selectAll("text")
+                                  .data(country)
+                                  .enter()
+                                  .append("text")
+                                      .attr("y", (d, i) => (i * 25 +265))
+                                      .attr("x", 230)
+                                      .attr("text-anchor", "start")
+                                      .text(d => d[0]);
+
+                });
+
+
+                </script>
+
+            </section>
+            </div>
+
+          <div id='vis'>
+          </div>
+          <div id="extra-space">
+          </div>
+        </div>
+    </div>
+</body>
+</html>

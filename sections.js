@@ -495,6 +495,7 @@ var scrollVis = function () {
         updateFunctions[3] = function () {};
         updateFunctions[4] = function () {};
         updateFunctions[5] = function () {};
+        updateFunctions[6] = function () {};
 
     };
 

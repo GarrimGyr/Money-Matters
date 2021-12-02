@@ -47,9 +47,6 @@ var scrollVis = function () {
     var ySubBarScale = d3.scaleBand()
         .paddingInner(0.05);
 
-    var coughColorScale = d3.scaleLinear()
-        .domain([0, 1.0])
-        .range(['#008080', 'red']);
 
     // You could probably get fancy and
     // use just one axis, modifying the
@@ -122,17 +119,23 @@ var scrollVis = function () {
 
 
         // set the bar scale's domain
-        var countMax = d3.max(save_data, function (d) { return d.remit;});
-        xBarScale.domain([0, countMax + 5]);
+        var countMax = d3.max(exp_data, function (d) { return d.remit;});
+        xBarScale.domain([0, countMax]);
         yBarScale.domain(yGroupValues);
-        // ySubBarScale.domain(ySubGroupValues)
-        //             .range([0, yBarScale.bandwidth()])
+        ySubBarScale.domain(ySubGroupValues)
+                    .range([0, yBarScale.bandwidth()])
 
         // Color is determined just by the index of the bars
-        var barColors = d3.scaleOrdinal()
-        .domain(ySubGroupValues)
-        .range(['#1E3E39','#658C4D']);
+        domain_combos = [];
+        for (let i = 0; i < yGroupValues.length; i++) {
+            for (let k = 0; k < ySubGroupValues.length; k++) {
+                domain_combos.push(ySubGroupValues[k] + yGroupValues[i])
+            }
+        }
 
+        var barColors = d3.scaleOrdinal()
+        .domain(domain_combos)
+        .range(['#056FB0','#033F63','#9DD977','#6F9954','#48BDAF','#2B7068']);
 
         // axis
         g.append('g')
@@ -154,7 +157,7 @@ var scrollVis = function () {
             .attr('class', 'title exp-title')
             .attr('x', margin.left)
             .attr('y', margin.top)
-            .text('Total Monthly Expenditures per capita');
+            .text('Total Monthly Household Expenditures per capita');
 
         g.append('text')
             .attr('class', 'sub-title exp-title')
@@ -184,7 +187,7 @@ var scrollVis = function () {
             .attr('class', 'title health-title')
             .attr('x', margin.left)
             .attr('y', margin.top)
-            .text('Spending on Health Care in last six months, per capita');
+            .text('Monthly Spending on Healthcare per capita');
     
         g.append('text')
             .attr('class', 'sub-title health-title')
@@ -199,7 +202,7 @@ var scrollVis = function () {
             .attr('class', 'title save-title')
             .attr('x', margin.left)
             .attr('y', margin.top)
-            .text('Amount Saved in last six months, per capita');
+            .text('Monthly Savings per capita');
     
         g.append('text')
             .attr('class', 'sub-title save-title')
@@ -214,207 +217,248 @@ var scrollVis = function () {
         // barchart
         // @v4 Using .merge here to ensure
         // new and old data have same attrs applied
-        var exp_bars_noremit = g.selectAll('.exp-bar-noremit').data(exp_data);
-        var exp_barsE_noremit = exp_bars_noremit.enter()
-            .append('rect')
-            .attr('class', 'exp-bar-noremit');
-        exp_bars_noremit = exp_bars_noremit.merge(exp_barsE_noremit)
+        var exp_bars = g.selectAll('.exp-bar-group').data(exp_data);
+        var exp_barsE = exp_bars.enter()
+            .append('g')
+            .attr('class', 'exp-bar-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("rect")
+            .data(function(d) { return Array({country: d.country, type:'No Remittances', 'value':d.no_remit},{country:d.country, type:'Remittances',value:d.remit})})
+            .enter().append("rect").attr('class', 'exp-bar')
+            ;
+
+        exp_barsE
             .attr('x', 0)
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#1E3E39')
+            .attr('y', function (d, i) {return ySubBarScale(d.type);})
+            .attr('fill', function (d) {return barColors(d.type+d.country); })
             .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
+            .attr('height', ySubBarScale.bandwidth())
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
 
-        var exp_bars_remit = g.selectAll('.exp-bar-remit').data(exp_data);
-        var exp_barsE_remit = exp_bars_remit.enter()
-            .append('rect')
-            .attr('class', 'exp-bar-remit');
-        exp_bars_remit = exp_bars_remit.merge(exp_barsE_remit)
-            .attr('x', function(d) {return xBarScale(d.no_remit);})
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#658C4D')
-            .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
+        exp_bars = exp_bars.merge(exp_barsE)
 
-        var exp_barText = g.selectAll('.exp-bar-num').data(exp_data);
-            exp_barText.enter()
-            .append('text')
-            .attr('class', 'exp-bar-num')
-            .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
-            .attr('x',  0)
-            .attr('dx', d => xBarScale(d.no_remit) + (xBarScale(d.remit) - xBarScale(d.no_remit))/2 - 20)
-            .attr('y', function (d, i) { return (yBarScale(d.country) + (0.5* yBarScale.bandwidth()));})
-            .attr('text-anchor','end')
+
+
+        var exp_barNum = g.selectAll('.exp-bar-num-group').data(exp_data);
+        exp_barNum.enter()
+            .append('g')
+            .attr('class', 'exp-bar-num-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'exp-bar-num')
+            .text((d,i) => '$' + d.value.toFixed(1))
+            .attr('x',  xBarScale(1))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
             .attr('opacity', 0)
-            .attr('fill', '#cbcbce')
+            .attr('fill', 'white')
             .attr('font-size', '14pt')
             .attr('text-anchor', 'start')
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
 
-
-        // barchart
-        // @v4 Using .merge here to ensure
-        // new and old data have same attrs applied
-        var food_bars_noremit = g.selectAll('.food-bar-noremit').data(food_data);
-        var food_barsE_noremit = food_bars_noremit.enter()
-            .append('rect')
-            .attr('class', 'food-bar-noremit');
-        food_bars_noremit = food_bars_noremit.merge(food_barsE_noremit)
-            .attr('x', 0)
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#1E3E39')
-            .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
-
-        var food_bars_remit = g.selectAll('.food-bar-remit').data(food_data);
-        var food_barsE_remit = food_bars_remit.enter()
-            .append('rect')
-            .attr('class', 'food-bar-remit');
-        food_bars_remit = food_bars_remit.merge(food_barsE_remit)
-            .attr('x', function(d) {return xBarScale(d.no_remit);})
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#658C4D')
-            .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
-
-        var food_barText = g.selectAll('.food-bar-num').data(food_data);
-            food_barText.enter()
+        var exp_diff_text = g.selectAll('.exp-bar-diff-text').data(exp_data);
+        exp_diff_text.enter()
             .append('text')
-            .attr('class', 'food-bar-num')
+            .attr('class', 'exp-bar-diff-text')
             .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
-            .attr('x',  0)
-            .attr('dx', d => xBarScale(d.no_remit) + (xBarScale(d.remit) - xBarScale(d.no_remit))/2 - 20)
-            .attr('y', function (d, i) { return (yBarScale(d.country) + (0.5* yBarScale.bandwidth()));})
-            .attr('text-anchor','end')
-            .attr('opacity', 0)
-            .attr('fill', '#cbcbce')
-            .attr('font-size', '14pt')
+            .attr('x',0)
+            .attr('dx', d=> xBarScale(d.no_remit + 1))
+            .attr('y',d => yBarScale(d.country)  + 0.5 * ySubBarScale.bandwidth())
             .attr('text-anchor', 'start')
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-
-
-        // barchart
-        // @v4 Using .merge here to ensure
-        // new and old data have same attrs applied
-        var health_bars_noremit = g.selectAll('.health-bar-noremit').data(health_data);
-        var health_barsE_noremit = health_bars_noremit.enter()
-            .append('rect')
-            .attr('class', 'health-bar-noremit');
-        health_bars_noremit = health_bars_noremit.merge(health_barsE_noremit)
-            .attr('x', 0)
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#1E3E39')
-            .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
-
-        var health_bars_remit = g.selectAll('.health-bar-remit').data(health_data);
-        var health_barsE_remit = health_bars_remit.enter()
-            .append('rect')
-            .attr('class', 'health-bar-remit');
-        health_bars_remit = health_bars_remit.merge(health_barsE_remit)
-            .attr('x', function(d) {return xBarScale(d.no_remit);})
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#658C4D')
-            .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
-
-        var health_barText = g.selectAll('.health-bar-num').data(health_data);
-            health_barText.enter()
-            .append('text')
-            .attr('class', 'health-bar-num')
-            .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
-            .attr('x',  0)
-            .attr('dx', d => xBarScale(d.no_remit) + (xBarScale(d.remit) - xBarScale(d.no_remit))/2 - 20)
-            .attr('y', function (d, i) { return (yBarScale(d.country) + (0.5* yBarScale.bandwidth()));})
-            .attr('text-anchor','end')
-            .attr('opacity', 0)
-            .attr('fill', '#cbcbce')
-            .attr('font-size', '14pt')
-            .attr('text-anchor', 'start')
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-
-        // barchart
-        // @v4 Using .merge here to ensure
-        // new and old data have same attrs applied
-        var save_bars_noremit = g.selectAll('.save-bar-noremit').data(save_data);
-        var save_barsE_noremit = save_bars_noremit.enter()
-            .append('rect')
-            .attr('class', 'save-bar-noremit');
-        save_bars_noremit = save_bars_noremit.merge(save_barsE_noremit)
-            .attr('x', 0)
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#1E3E39')
-            .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
-
-        var save_bars_remit = g.selectAll('.save-bar-remit').data(save_data);
-        var save_barsE_remit = save_bars_remit.enter()
-            .append('rect')
-            .attr('class', 'save-bar-remit');
-        save_bars_remit = save_bars_remit.merge(save_barsE_remit)
-            .attr('x', function(d) {return xBarScale(d.no_remit);})
-            .attr('y', function (d, i) {return yBarScale(d.country);})
-            .attr('fill', '#658C4D')
-            .attr('width', 0)
-            .attr('height', yBarScale.bandwidth())
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-            ;
-
-        var save_barText = g.selectAll('.save-bar-num').data(save_data);
-            save_barText.enter()
-            .append('text')
-            .attr('class', 'save-bar-num')
-            .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
-            .attr('x',  0)
-            .attr('dx', d => xBarScale(d.no_remit) + (xBarScale(d.remit) - xBarScale(d.no_remit))/2 - 20)
-            .attr('y', function (d, i) { return (yBarScale(d.country) + (0.5* yBarScale.bandwidth()));})
-            .attr('text-anchor','end')
-            .attr('opacity', 0)
-            .attr('fill', '#cbcbce')
-            .attr('font-size', '14pt')
-            .attr('text-anchor', 'start')
-            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
-
-        // Add one dot in the legend for each name.
-        legendDots = g.selectAll("legend-dots")
-        .data(ySubGroupValues);
-
-        legendDots.enter()
-            .append("circle")
-            .attr('class', 'legend-dots')
-            .attr("cx", function(d,i){ return chartMargin.left + margin.left + i*150})
-            .attr("cy", visHeight - margin.bottom + 25) // 100 is where the first dot appears. 25 is the distance between dots
-            .attr("r", 7)
-            .style("fill", function(d){ return barColors(d)})
             .attr('opacity',0)
+            .attr('fill', '#FA6E06')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
 
-        // Add one dot in the legend for each name.
-        legendLabels = g.selectAll("legend-labels")
-        .data(ySubGroupValues);
-        legendLabels.enter()
-        .append("text")
-            .attr('class', 'legend-labels')
-            .attr("x", function(d,i){ return 15 + chartMargin.left + margin.left + i*150})
-            .attr("y", visHeight - margin.bottom + 25)
-            .style("fill", 'black')
-            .text(function(d){ return d})
-            .attr("text-anchor", "left")
-            .style("alignment-baseline", "middle")
+
+        // barchart
+        // @v4 Using .merge here to ensure
+        // new and old data have same attrs applied
+        var food_bars = g.selectAll('.food-bar-group').data(food_data);
+        var food_barsE = food_bars.enter()
+            .append('g')
+            .attr('class', 'food-bar-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("rect")
+            .data(function(d) { return Array({country: d.country, type:'No Remittances', 'value':d.no_remit},{country:d.country, type:'Remittances',value:d.remit})})
+            .enter().append("rect").attr('class', 'food-bar')
+            ;
+
+        food_barsE
+            .attr('x', 0)
+            .attr('y', function (d, i) {return ySubBarScale(d.type);})
+            .attr('fill', function (d) {return barColors(d.type+d.country); })
+            .attr('width', 0)
+            .attr('height', ySubBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        food_bars = food_bars.merge(food_barsE)
+
+        var food_barNum = g.selectAll('.food-bar-num-group').data(food_data);
+        food_barNum.enter()
+            .append('g')
+            .attr('class', 'food-bar-num-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'food-bar-num')
+            .text((d,i) => '$' + d.value.toFixed(1))
+            .attr('x',  xBarScale(1))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
+            .attr('opacity', 0)
+            .attr('fill', 'white')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        var food_diff_text = g.selectAll('.food-bar-diff-text').data(food_data);
+        food_diff_text.enter()
+            .append('text')
+            .attr('class', 'food-bar-diff-text')
+            .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
+            .attr('x',0)
+            .attr('dx', d=> xBarScale(d.no_remit + 1))
+            .attr('y',d => yBarScale(d.country)  + 0.5 * ySubBarScale.bandwidth())
+            .attr('text-anchor', 'start')
             .attr('opacity',0)
+            .attr('fill', '#FA6E06')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        // barchart
+        // @v4 Using .merge here to ensure
+        // new and old data have same attrs applied
+        var health_bars = g.selectAll('.health-bar-group').data(health_data);
+        var health_barsE = health_bars.enter()
+            .append('g')
+            .attr('class', 'health-bar-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("rect")
+            .data(function(d) { return Array({country: d.country, type:'No Remittances', 'value':d.no_remit},{country:d.country, type:'Remittances',value:d.remit})})
+            .enter().append("rect").attr('class', 'health-bar')
+            ;
+
+        health_barsE
+            .attr('x', 0)
+            .attr('y', function (d, i) {return ySubBarScale(d.type);})
+            .attr('fill', function (d) {return barColors(d.type+d.country); })
+            .attr('width', 0)
+            .attr('height', ySubBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        health_bars = health_bars.merge(health_barsE)
+
+        var health_barNum = g.selectAll('.health-bar-num-group').data(health_data);
+        health_barNum.enter()
+            .append('g')
+            .attr('class', 'health-bar-num-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'health-bar-num')
+            .text((d,i) => '$' + d.value.toFixed(1))
+            .attr('x',  xBarScale(1))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
+            .attr('opacity', 0)
+            .attr('fill', 'white')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        var health_diff_text = g.selectAll('.health-bar-diff-text').data(health_data);
+        health_diff_text.enter()
+            .append('text')
+            .attr('class', 'health-bar-diff-text')
+            .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
+            .attr('x',0)
+            .attr('dx', d=> xBarScale(d.no_remit + 1))
+            .attr('y',d => yBarScale(d.country)  + 0.5 * ySubBarScale.bandwidth())
+            .attr('text-anchor', 'start')
+            .attr('opacity',0)
+            .attr('fill', '#FA6E06')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        // barchart
+        // @v4 Using .merge here to ensure
+        // new and old data have same attrs applied
+        var save_bars = g.selectAll('.save-bar-group').data(save_data);
+        var save_barsE = save_bars.enter()
+            .append('g')
+            .attr('class', 'save-bar-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("rect")
+            .data(function(d) { return Array({country: d.country, type:'No Remittances', 'value':d.no_remit},{country:d.country, type:'Remittances',value:d.remit})})
+            .enter().append("rect").attr('class', 'save-bar')
+            ;
+
+        save_barsE
+            .attr('x', 0)
+            .attr('y', function (d, i) {return ySubBarScale(d.type);})
+            .attr('fill', function (d) {return barColors(d.type+d.country); })
+            .attr('width', 0)
+            .attr('height', ySubBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        save_bars = save_bars.merge(save_barsE)
+
+        var save_barNum = g.selectAll('.save-bar-num-group').data(save_data);
+        save_barNum.enter()
+            .append('g')
+            .attr('class', 'save-bar-num-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'save-bar-num')
+            .text((d,i) => '$' + d.value.toFixed(1))
+            .attr('x',  xBarScale(1))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
+            .attr('opacity', 0)
+            .attr('fill', 'white')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        var save_diff_text = g.selectAll('.save-bar-diff-text').data(save_data);
+        save_diff_text.enter()
+            .append('text')
+            .attr('class', 'save-bar-diff-text')
+            .text((d,i) => '+$' + (d.remit - d.no_remit).toFixed(1))
+            .attr('x',0)
+            .attr('dx', d=> xBarScale(d.no_remit + 1))
+            .attr('y',d => yBarScale(d.country)  + 0.5 * ySubBarScale.bandwidth())
+            .attr('text-anchor', 'start')
+            .attr('opacity',0)
+            .attr('fill', '#FA6E06')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        // // Add one dot in the legend for each name.
+        // legendDots = g.selectAll("legend-dots")
+        // .data(ySubGroupValues);
+
+        // legendDots.enter()
+        //     .append("circle")
+        //     .attr('class', 'legend-dots')
+        //     .attr("cx", function(d,i){ return chartMargin.left + margin.left + i*150})
+        //     .attr("cy", visHeight - margin.bottom + 25) // 100 is where the first dot appears. 25 is the distance between dots
+        //     .attr("r", 7)
+        //     .style("fill", function(d){ return barColors(d)})
+        //     .attr('opacity',0)
+
+        // // Add one dot in the legend for each name.
+        // legendLabels = g.selectAll("legend-labels")
+        // .data(ySubGroupValues);
+        // legendLabels.enter()
+        // .append("text")
+        //     .attr('class', 'legend-labels')
+        //     .attr("x", function(d,i){ return 15 + chartMargin.left + margin.left + i*150})
+        //     .attr("y", visHeight - margin.bottom + 25)
+        //     .style("fill", 'black')
+        //     .text(function(d){ return d})
+        //     .attr("text-anchor", "left")
+        //     .style("alignment-baseline", "middle")
+        //     .attr('opacity',0)
 
 
     };
@@ -474,44 +518,39 @@ var scrollVis = function () {
             hideXAxis()
             hideYAxis()
             svg.selectAll('.exp-title').transition().duration(0).attr('opacity', 0);
-            svg.selectAll('.exp-bar-noremit').transition().duration(300).attr('width', 0);
-            svg.selectAll('.exp-bar-remit').transition().duration(0).attr('width', 0);
+            svg.selectAll('.exp-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.exp-bar-num').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.exp-bar-diff-text').transition().duration(300).attr('opacity', 0);
 
         }
         if (chartType !== "isFoodBar") {
             hideXAxis()
             hideYAxis()
             svg.selectAll('.food-title').transition().duration(0).attr('opacity', 0);
-            svg.selectAll('.food-bar-noremit').transition().duration(300).attr('width', 0);
-            svg.selectAll('.food-bar-remit').transition().duration(0).attr('width', 0);
+            svg.selectAll('.food-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.food-bar-num').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.food-bar-diff-text').transition().duration(300).attr('opacity', 0);
+
         }
 
         if (chartType !== "isHealthBar") {
             hideXAxis()
             hideYAxis()
             svg.selectAll('.health-title').transition().duration(0).attr('opacity', 0);
-            svg.selectAll('.health-bar-noremit').transition().duration(300).attr('width', 0);
-            svg.selectAll('.health-bar-remit').transition().duration(0).attr('width', 0);
+            svg.selectAll('.health-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.health-bar-num').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.health-bar-diff-text').transition().duration(300).attr('opacity', 0);
+
         }
 
         if (chartType !== "isSaveBar") {
             hideXAxis()
             hideYAxis()
             svg.selectAll('.save-title').transition().duration(0).attr('opacity', 0);
-            svg.selectAll('.save-bar-noremit').transition().duration(300).attr('width', 0);
-            svg.selectAll('.save-bar-remit').transition().duration(0).attr('width', 0);
+            svg.selectAll('.save-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.save-bar-num').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-dots').transition().duration(300).attr('opacity', 0);
-            svg.selectAll('.legend-labels').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.save-bar-diff-text').transition().duration(300).attr('opacity', 0);
+
         }
 
     }
@@ -544,33 +583,24 @@ var scrollVis = function () {
             .duration(300)
             .attr('opacity', 1.0);
 
-        g.selectAll('.exp-bar-noremit')
+        g.selectAll('.exp-bar')
           .transition()
-          .delay(function (d, i) { return 200 * (i + 1);})
-          .duration(300)
-          .attr('width', function(d) {return xBarScale(d.no_remit);});
+          .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
+          .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
+          .attr('width', function(d) {return xBarScale(d.value);});
  
-        g.selectAll('.exp-bar-remit')
+        // g.selectAll('.exp-bar-num')
+        //   .transition()
+        //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
+        //   .duration(300)
+        //   .attr('opacity', 1);
+
+        g.selectAll('.exp-bar-diff-text')
           .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
           .duration(1000)
-          .attr('width', function(d) {return (xBarScale(d.remit) - xBarScale(d.no_remit));});
-
-        g.selectAll('.exp-bar-num')
-          .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
-          .duration(1000)
           .attr('opacity', 1);
 
-        g.selectAll('.legend-dots')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
-
-        g.selectAll('.legend-labels')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
     }
 
     function showExpPointer() {
@@ -589,33 +619,25 @@ var scrollVis = function () {
         .duration(300)
         .attr('opacity', 1.0);
 
-        g.selectAll('.food-bar-noremit')
+        g.selectAll('.food-bar')
           .transition()
-          .delay(function (d, i) { return 200 * (i + 1);})
-          .duration(300)
-          .attr('width', function(d) {return xBarScale(d.no_remit);});
+          .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
+          .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
+          .attr('width', function(d) {return xBarScale(d.value);});
  
-        g.selectAll('.food-bar-remit')
+        // g.selectAll('.food-bar-num')
+        //   .transition()
+        //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
+        //   .duration(300)
+        //   .attr('opacity', 1);
+
+        g.selectAll('.food-bar-diff-text')
           .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
           .duration(1000)
-          .attr('width', function(d) {return (xBarScale(d.remit) - xBarScale(d.no_remit));});
-
-        g.selectAll('.food-bar-num')
-          .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
-          .duration(1000)
           .attr('opacity', 1);
 
-        g.selectAll('.legend-dots')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
 
-        g.selectAll('.legend-labels')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
     }
 
     function showHealthBarChart() {
@@ -629,33 +651,25 @@ var scrollVis = function () {
         .duration(300)
         .attr('opacity', 1.0);
 
-        g.selectAll('.health-bar-noremit')
+        g.selectAll('.health-bar')
           .transition()
-          .delay(function (d, i) { return 200 * (i + 1);})
-          .duration(300)
-          .attr('width', function(d) {return xBarScale(d.no_remit);});
+          .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
+          .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
+          .attr('width', function(d) {return xBarScale(d.value);});
  
-        g.selectAll('.health-bar-remit')
+        // g.selectAll('.health-bar-num')
+        //   .transition()
+        //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
+        //   .duration(300)
+        //   .attr('opacity', 1);
+
+        g.selectAll('.health-bar-diff-text')
           .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
           .duration(1000)
-          .attr('width', function(d) {return (xBarScale(d.remit) - xBarScale(d.no_remit));});
-
-        g.selectAll('.health-bar-num')
-          .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
-          .duration(1000)
           .attr('opacity', 1);
 
-        g.selectAll('.legend-dots')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
 
-        g.selectAll('.legend-labels')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
     }
 
     function showSaveBarChart() {
@@ -669,33 +683,24 @@ var scrollVis = function () {
         .duration(300)
         .attr('opacity', 1.0);
 
-        g.selectAll('.save-bar-noremit')
+        g.selectAll('.save-bar')
           .transition()
-          .delay(function (d, i) { return 200 * (i + 1);})
-          .duration(300)
-          .attr('width', function(d) {return xBarScale(d.no_remit);});
+          .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
+          .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
+          .attr('width', function(d) {return xBarScale(d.value);});
  
-        g.selectAll('.save-bar-remit')
+        // g.selectAll('.save-bar-num')
+        //   .transition()
+        //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
+        //   .duration(300)
+        //   .attr('opacity', 1);
+
+        g.selectAll('.save-bar-diff-text')
           .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
           .duration(1000)
-          .attr('width', function(d) {return (xBarScale(d.remit) - xBarScale(d.no_remit));});
-
-        g.selectAll('.save-bar-num')
-          .transition()
-          .delay(function (d, i) { return 400 + 300 * (i + 1);})
-          .duration(1000)
           .attr('opacity', 1);
 
-        g.selectAll('.legend-dots')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
-
-        g.selectAll('.legend-labels')
-          .transition()
-          .duration(300)
-          .attr('opacity', 1);
     }
 
 

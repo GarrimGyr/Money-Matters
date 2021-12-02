@@ -87,7 +87,7 @@ h1 {
   text-anchor: start;
 } */
 
-#vis .title.exp-title, .title.food-title, .title.health-title, .title.save-title{
+#vis .title.exp-title, #vis .title.food-title, #vis .title.health-title, #vis .title.save-title {
   font-family: Arial,Helvetica,"san-serif";
   font-weight: bold;
 

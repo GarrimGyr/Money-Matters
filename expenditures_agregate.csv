@@ -1,0 +1,37 @@
+country,expenses,axis,value_remit,value_noremit,value_diff,color
+Guatemala,other,Guatemala_other,8,10,-22,#033F63
+Guatemala,transport,Guatemala_transport,6,6,1,#033F63
+Guatemala,education,Guatemala_education,1,1,9,#033F63
+Guatemala,health,Guatemala_health,5,4,25,#033F63
+Guatemala,food and water,Guatemala_food and water,26,20,34,#033F63
+Guatemala,personal care,Guatemala_personal care,7,5,49,#033F63
+Guatemala,debt,Guatemala_debt,9,5,67,#033F63
+Guatemala,savings,Guatemala_savings,13,5,140,#033F63
+Guatemala,housing,Guatemala_housing,69,14,409,#033F63
+,,1,,,0,
+,,2,,,0,
+,,3,,,0,
+El Salvador,other,El Salvador_other,13,18,-32,#2B7068
+El Salvador,housing,El Salvador_housing,14,20,-28,#2B7068
+El Salvador,debt,El Salvador_debt,11,11,0,#2B7068
+El Salvador,education,El Salvador_education,2,2,0,#2B7068
+El Salvador,transport,El Salvador_transport,5,5,7,#2B7068
+El Salvador,personal care,El Salvador_personal care,8,7,14,#2B7068
+El Salvador,savings,El Salvador_savings,7,6,20,#2B7068
+El Salvador,food and water,El Salvador_food and water,31,25,26,#2B7068
+El Salvador,health,El Salvador_health,7,4,60,#2B7068
+,,4,,,0,
+,,5,,,0,
+,,6,,,0,
+Honduras,food and water,Honduras_food and water,32,25,25,#6F9954
+Honduras,personal care,Honduras_personal care,6,5,30,#6F9954
+Honduras,other,Honduras_other,10,7,47,#6F9954
+Honduras,debt,Honduras_debt,7,5,58,#6F9954
+Honduras,health,Honduras_health,5,3,60,#6F9954
+Honduras,savings,Honduras_savings,10,6,60,#6F9954
+Honduras,housing,Honduras_housing,17,10,62,#6F9954
+Honduras,education,Honduras_education,2,1,80,#6F9954
+Honduras,transport,Honduras_transport,4,2,157,#6F9954
+,,7,,,0,
+,,8,,,0,
+,,9,,,0,

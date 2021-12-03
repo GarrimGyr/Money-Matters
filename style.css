@@ -95,13 +95,11 @@ h1 {
   font-weight: bold;
 }
 
-<<<<<<< Updated upstream
 .cough-arrow {
   stroke: #000;
   stroke-width: 4px;
 
 }
-=======
 #vis .xAxis text {
     font-family: "TiemposTextWeb-Regular","Georgia";
     font-size: 14px;
@@ -110,8 +108,8 @@ h1 {
 
 #tooltip {
   position: absolute;
-  width: 250px;
-  height: 30px;
+  width: 300px;
+  height:80px;
   padding: 5px;
   background: white;
   border: solid gray 1px;
@@ -121,4 +119,3 @@ h1 {
 #tooltip.hidden{
   display:none;
 }
->>>>>>> Stashed changes

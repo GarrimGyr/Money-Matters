@@ -87,7 +87,7 @@ h1 {
   text-anchor: start;
 } */
 
-#vis .title.exp-title, .title.food-title, .title.health-title, .title.save-title{
+#vis .title.exp-title, #vis .title.food-title, #vis .title.health-title, #vis .title.save-title, #vis .title.shares-health-title, #vis .title.shares-save-title {
   font-family: Arial,Helvetica,"san-serif";
   font-weight: bold;
 
@@ -96,7 +96,7 @@ h1 {
   text-anchor: start;
 }
 
-#vis .sub-title.exp-title, .sub-title.food-title, .sub-title.health-title, .sub-title.save-title{
+#vis .sub-title.exp-title, .sub-title.food-title, .sub-title.health-title, .sub-title.save-title, .sub-title.shares-health-title, .sub-title.shares-save-title{
     font-family: "TiemposTextWeb-Regular","Georgia";
     font-size:14px;
     color:#767678;
@@ -114,7 +114,9 @@ h1 {
 
 
 .xAxis path,
-.xAxis line {
+.xAxis line,
+.xSharesAxis path,
+.xSharesAxis line {
   fill: none;
   stroke: #666;
   shape-rendering: crispEdges;
@@ -135,7 +137,7 @@ h1 {
 
 }
 
-#vis .xAxis text {
+#vis .xAxis text , #vis .xSharesAxis text {
     font-family: "TiemposTextWeb-Regular","Georgia";
     font-size: 14px;
     color: black

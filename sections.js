@@ -38,6 +38,8 @@ var scrollVis = function () {
     // @v4 using new scale names
     var xBarScale = d3.scaleLinear()
         .range([0, chartWidth]);
+    var xShareBarScale = d3.scaleLinear()
+        .range([0, chartWidth]);
 
     // The bar chart display is horizontal
     // so we can use an ordinal scale
@@ -57,6 +59,8 @@ var scrollVis = function () {
     // @v4 using new axis name
     var xAxisBar = d3.axisBottom()
         .scale(xBarScale);
+    var xShareAxisBar = d3.axisBottom()
+        .scale(xShareBarScale);
 
     var yAxisBar = d3.axisLeft()
         .scale(yBarScale);
@@ -86,6 +90,9 @@ var scrollVis = function () {
     // progress through the section.
     var updateFunctions = [];
 
+
+
+
     /**
      * chart
      *
@@ -110,7 +117,19 @@ var scrollVis = function () {
         // other elements.
         g = svg.select('g')
             // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        // var button1 = document.createElement('button');
+        // button1.innerHTML = 'shares';
+        // button1.onclick = showHealthSharesBarChart();
 
+        // button1.className = "share_shift";
+        // document.getElementById('vis').insertBefore(button1, document.getElementById('vis').firstChild);
+
+        // var button2 = document.createElement('button');
+        // button2.innerHTML = 'money spent';
+        // button2.onclick = showHealthBarChart();
+
+        // button2.className = "money_shift";
+        // document.getElementById('vis').insertBefore(button2, document.getElementById('vis').firstChild);
         setupVis(all_data);
 
         setupSections();
@@ -128,12 +147,16 @@ var scrollVis = function () {
         bar_dataset = bar_dataset[0].data;
         var spider_dataset = all_data.filter(function (d) { return d.chartType === 'spider'; });
         spider_dataset = spider_dataset[0].data;
+        var shares_dataset = all_data.filter(function (d) { return d.chartType === 'shares'; });
+        shares_dataset = shares_dataset[0].data;
 
         // perform some preprocessing on raw data
         var exp_data = reshapeExp(bar_dataset, 'monthly_expenditure_pc');
         var food_data = reshapeExp(bar_dataset, 'exp_monthly_food_pc');
         var save_data = reshapeExp(bar_dataset, 'exp_6months_savings_pc');
+        var save_shares = reshapeExp(shares_dataset, 'exp_6months_savings_pc');
         var health_data = reshapeExp(bar_dataset, 'exp_6months_health_pc');
+        var health_shares = reshapeExp(shares_dataset, 'exp_6months_health_pc');
 
         var yGroupValues = exp_data.map(d=>d.country);
         var ySubGroupValues = ['No Remittances', 'Remittances'];
@@ -142,6 +165,10 @@ var scrollVis = function () {
         // set the bar scale's domain
         var countMax = d3.max(exp_data, function (d) { return d.remit;});
         xBarScale.domain([0, countMax]);
+        var countMaxShares = d3.max(health_shares, function (d) { return d.remit;});
+
+        xShareBarScale.domain([0, countMaxShares]);
+
         yBarScale.domain(yGroupValues);
         ySubBarScale.domain(ySubGroupValues)
                     .range([0, yBarScale.bandwidth()])
@@ -159,7 +186,7 @@ var scrollVis = function () {
 
         var barColors = d3.scaleOrdinal()
         .domain(domain_combos)
-        .range(['#056FB0','#033F63','#9DD977','#6F9954','#48BDAF','#2B7068']);
+        .range(['#033F63','#056FB0','#6F9954','#9DD977','#2B7068', '#48BDAF']);
 
         // radial chart
         var circles = g.selectAll('.circles').data(ticks);
@@ -225,6 +252,14 @@ var scrollVis = function () {
             .style('opacity', 0);
         g.select('.xAxis').style('opacity', 0);
 
+        // axis
+        g.append('g')
+            .attr('class', 'xSharesAxis')
+            .attr('transform', 'translate(' + (margin.left + chartMargin.left) + ',' + (margin.top + chartMargin.top + chartHeight) + ')')
+            .call(xShareAxisBar)
+            .style('opacity', 0);
+        g.select('.xSharesAxis').style('opacity', 0);
+
         g.append('g')
             .attr('class', 'yAxis')
             .attr('transform', 'translate(' + (margin.left + chartMargin.left) + ',' + (chartMargin.top + margin.top) + ')')
@@ -279,6 +314,21 @@ var scrollVis = function () {
             .attr('opacity', 0);
 
         g.append('text')
+            .attr('class', 'title shares-health-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top)
+            .text('Share of Households Spending Money on Healthcare');
+    
+        g.append('text')
+            .attr('class', 'sub-title shares-health-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top + 20)
+            .text('By country');
+
+        g.selectAll('.share-health-title')
+            .attr('opacity', 0);
+
+        g.append('text')
             .attr('class', 'title save-title')
             .attr('x', margin.left)
             .attr('y', margin.top)
@@ -289,8 +339,23 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top + 20)
             .text('Median by country');
-
+        
         g.selectAll('.save-title')
+            .attr('opacity', 0);
+
+        g.append('text')
+            .attr('class', 'title shares-save-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top)
+            .text('Share of Households Saving Money');
+    
+        g.append('text')
+            .attr('class', 'sub-title shares-save-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top + 20)
+            .text('By country');
+
+        g.selectAll('.shares-save-title')
             .attr('opacity', 0);
 
 
@@ -540,6 +605,114 @@ var scrollVis = function () {
         //     .style("alignment-baseline", "middle")
         //     .attr('opacity',0)
 
+        // barchart
+        // @v4 Using .merge here to ensure
+        // new and old data have same attrs applied
+        var health_share_bars = g.selectAll('.health-bar-shares-group').data(health_shares);
+        var health_share_barsE = health_share_bars.enter()
+            .append('g')
+            .attr('class', 'health-shares-bar-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("rect")
+            .data(function(d) { return Array({country: d.country, type:'No Remittances', 'value':d.no_remit},{country:d.country, type:'Remittances',value:d.remit})})
+            .enter().append("rect").attr('class', 'health-share-bar')
+            ;
+
+        health_share_barsE
+            .attr('x', 0)
+            .attr('y', function (d, i) {return ySubBarScale(d.type);})
+            .attr('fill', function (d) {return barColors(d.type+d.country); })
+            .attr('width', 0)
+            .attr('height', ySubBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        health_share_bars = health_share_bars.merge(health_share_barsE)
+
+        var health_share_barNum = g.selectAll('.health-share-bar-num-group').data(health_shares);
+        health_share_barNum.enter()
+            .append('g')
+            .attr('class', 'health-share-bar-num-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'health-share-bar-num')
+            .text((d,i) => d.value.toFixed(2))
+            .attr('x',  xShareBarScale(1))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
+            .attr('opacity', 0)
+            .attr('fill', 'white')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        var health_share_diff_text = g.selectAll('.health-share-bar-diff-text').data(health_shares);
+        health_share_diff_text.enter()
+            .append('text')
+            .attr('class', 'health-share-bar-diff-text')
+            .text((d,i) => (d.remit - d.no_remit).toFixed(0) + '%')
+            .attr('x',0)
+            .attr('dx', d=> xShareBarScale(d.no_remit + 1))
+            .attr('y',d => yBarScale(d.country)  + 0.5 * ySubBarScale.bandwidth())
+            .attr('text-anchor', 'start')
+            .attr('opacity',0)
+            .attr('fill', '#FA6E06')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+
+        // barchart
+        // @v4 Using .merge here to ensure
+        // new and old data have same attrs applied
+        var save_share_bars = g.selectAll('.save-bar-shares-group').data(save_shares);
+        var save_share_barsE = save_share_bars.enter()
+            .append('g')
+            .attr('class', 'save-shares-bar-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("rect")
+            .data(function(d) { return Array({country: d.country, type:'No Remittances', 'value':d.no_remit},{country:d.country, type:'Remittances',value:d.remit})})
+            .enter().append("rect").attr('class', 'save-share-bar')
+            ;
+
+        save_share_barsE
+            .attr('x', 0)
+            .attr('y', function (d, i) {return ySubBarScale(d.type);})
+            .attr('fill', function (d) {return barColors(d.type+d.country); })
+            .attr('width', 0)
+            .attr('height', ySubBarScale.bandwidth())
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+            ;
+
+        save_share_bars = save_share_bars.merge(save_share_barsE)
+
+        var save_share_barNum = g.selectAll('.save-share-bar-num-group').data(save_shares);
+        save_share_barNum.enter()
+            .append('g')
+            .attr('class', 'save-share-bar-num-group')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'save-share-bar-num')
+            .text((d,i) => d.value.toFixed(2))
+            .attr('x',  xShareBarScale(1))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()));})
+            .attr('opacity', 0)
+            .attr('fill', 'white')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        var save_share_diff_text = g.selectAll('.save-share-bar-diff-text').data(save_shares);
+        save_share_diff_text.enter()
+            .append('text')
+            .attr('class', 'save-share-bar-diff-text')
+            .text((d,i) => (d.remit - d.no_remit).toFixed(0) + '%')
+            .attr('x',0)
+            .attr('dx', d=> xShareBarScale(d.no_remit + 1))
+            .attr('y',d => yBarScale(d.country)  + 0.5 * ySubBarScale.bandwidth())
+            .attr('text-anchor', 'start')
+            .attr('opacity',0)
+            .attr('fill', '#FA6E06')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
 
     };
 
@@ -557,9 +730,11 @@ var scrollVis = function () {
         activateFunctions[1] = showExpBarChart;
         activateFunctions[2] = showExpPointer;
         activateFunctions[3] = showFoodBarChart;
-        activateFunctions[4] = showHealthBarChart;
-        activateFunctions[5] = showSaveBarChart;
-        activateFunctions[6] = showSpiderChart;
+        activateFunctions[4] = showHealthSharesBarChart;
+        activateFunctions[5] = showHealthBarChart;
+        activateFunctions[6] = showSaveSharesBarChart;
+        activateFunctions[7] = showSaveBarChart;
+        activateFunctions[8] = showSpiderChart;
 
         // updateFunctions are called while
         // in a particular section to update
@@ -576,6 +751,8 @@ var scrollVis = function () {
         updateFunctions[4] = function () {};
         updateFunctions[5] = function () {};
         updateFunctions[6] = function () {};
+        updateFunctions[7] = function () {};
+        updateFunctions[8] = function () {};
 
     };
 
@@ -625,6 +802,16 @@ var scrollVis = function () {
 
         }
 
+        if (chartType !== "isHealthShareBar") {
+            hideSharesXAxis()
+            hideYAxis()
+            svg.selectAll('.shares-health-title').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.health-share-bar').transition().duration(300).attr('width', 0);
+            svg.selectAll('.health-share-bar-num').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.health-share-bar-diff-text').transition().duration(300).attr('opacity', 0);
+
+        }
+
         if (chartType !== "isSaveBar") {
             hideXAxis()
             hideYAxis()
@@ -632,6 +819,16 @@ var scrollVis = function () {
             svg.selectAll('.save-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.save-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.save-bar-diff-text').transition().duration(300).attr('opacity', 0);
+
+        }
+
+        if (chartType !== "isSaveShareBar") {
+            hideSharesXAxis()
+            hideYAxis()
+            svg.selectAll('.shares-save-title').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.save-share-bar').transition().duration(300).attr('width', 0);
+            svg.selectAll('.save-share-bar-num').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.save-share-bar-diff-text').transition().duration(300).attr('opacity', 0);
 
         }
 
@@ -762,6 +959,38 @@ var scrollVis = function () {
 
     }
 
+    function showHealthSharesBarChart() {
+        clean('isHealthSharesBar');
+        showSharesXAxis(xShareBarScale);
+
+        showYAxis(yBarScale);
+
+        g.selectAll('.shares-health-title')
+        .transition()
+        .duration(300)
+        .attr('opacity', 1.0);
+
+        g.selectAll('.health-share-bar')
+          .transition()
+          .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
+          .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
+          .attr('width', function(d) {return xShareBarScale(d.value);});
+ 
+        // g.selectAll('.health-bar-num')
+        //   .transition()
+        //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
+        //   .duration(300)
+        //   .attr('opacity', 1);
+
+        g.selectAll('.health-share-bar-diff-text')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(1000)
+          .attr('opacity', 1);
+
+
+    }
+
     function showSaveBarChart() {
         clean('isSaveBar');
         showXAxis(xBarScale);
@@ -790,6 +1019,38 @@ var scrollVis = function () {
           .delay(function (d, i) { return 900 + 400 * (i + 1);})
           .duration(1000)
           .attr('opacity', 1);
+
+    }
+
+    function showSaveSharesBarChart() {
+        clean('isSaveSharesBar');
+        showSharesXAxis(xShareBarScale);
+
+        showYAxis(yBarScale);
+
+        g.selectAll('.shares-save-title')
+        .transition()
+        .duration(300)
+        .attr('opacity', 1.0);
+
+        g.selectAll('.save-share-bar')
+          .transition()
+          .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
+          .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
+          .attr('width', function(d) {return xShareBarScale(d.value);});
+ 
+        // g.selectAll('.save-bar-num')
+        //   .transition()
+        //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
+        //   .duration(300)
+        //   .attr('opacity', 1);
+
+        g.selectAll('.save-share-bar-diff-text')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(1000)
+          .attr('opacity', 1);
+
 
     }
 
@@ -836,6 +1097,12 @@ var scrollVis = function () {
         .transition().duration(500)
         .style('opacity', 1);
     }
+    function showSharesXAxis(axis) {
+        g.select('.xSharesAxis')
+        .call(axis)
+        .transition().duration(500)
+        .style('opacity', 1);
+    }
     /**
      * showAxis - helper function to
      * display particular xAxis
@@ -857,6 +1124,12 @@ var scrollVis = function () {
      */
     function hideXAxis() {
         svg.select('.xAxis')
+        .transition().duration(300)
+        .style('opacity', 0);
+    }
+    
+    function hideSharesXAxis() {
+        svg.select('.xSharesAxis')
         .transition().duration(300)
         .style('opacity', 0);
     }
@@ -977,11 +1250,15 @@ var scrollVis = function () {
 
             // activate current section
             plot.activate(index);
-    });
 
-    scroll.on('progress', function (index, progress) {
-        plot.update(index, progress);
-    });``
+        });
+
+        scroll.on('progress', function (index, progress) {
+            plot.update(index, progress);
+        });
+
+
+        
     }
 
 // load data and display
@@ -1007,10 +1284,22 @@ Promise.all([
             value_remit: +d.value_remit
         }
     }),
+    d3.csv('website_data/spending_shares.csv', function(d) {
+        return {
+            expense_type: d.variable,
+            gt_noremit: +d.GT_noremit *100,
+            gt_remit: +d.GT_remit*100,
+            hnd_noremit: +d.HND_noremit*100,
+            hnd_remit: +d.HND_remit*100,        
+            slv_noremit: +d.SLV_noremit*100,
+            slv_remit: +d.SLV_remit*100
+        }
+    }),
 ]).then(function(files) {
     bar_data = files[0]
     spider_data = files[1]
-    all_data = Array({data: Array({chartType: 'bar', data:bar_data}, {chartType: 'spider',data:spider_data})});
+    shares_data = files[2]
+    all_data = Array({data: Array({chartType: 'bar', data:bar_data}, {chartType: 'spider',data:spider_data}, {chartType: 'shares',data:shares_data})});
 
     display(all_data)
 })

@@ -10,13 +10,15 @@ var scrollVis = function () {
     var visWidth = 700;
     var visHeight = 700;
     var margin = { top: 200, left: 30, bottom: 150, right: 10 };
+    var spiderMargin = {top: 30, left:30, bottom: 50, right: 30};
 
     var chartMargin = {top: 30, left: 85, bottom: 10, right: 10};
     var chartWidth = visWidth - margin.left - margin.right - chartMargin.left - chartMargin.right;
     var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom; 
 
-    var innerRadius = 120;
-    var outerRadius = Math.min(visWidth, visHeight) / 2;   // the outerRadius goes from the middle of the SVG area to the border
+    var innerRadius = 80;
+    var outerRadius = Math.min(visWidth - spiderMargin.left - spiderMargin.right, visHeight - spiderMargin.top - spiderMargin.bottom) / 2;   // the outerRadius goes from the middle of the SVG area to the border
+
     // Keep track of which visualization
     // we are on and which was the last
     // index activated. When user scrolls
@@ -77,6 +79,7 @@ var scrollVis = function () {
     var radialScale = d3.scaleLinear()
         .domain([0,300])
         .range([innerRadius,outerRadius]);
+
     var ticks = [0,50,100,150,200];
     var ticks2 = [0];
 
@@ -116,20 +119,12 @@ var scrollVis = function () {
         // this group element will be used to contain all
         // other elements.
         g = svg.select('g')
-            // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
-        // var button1 = document.createElement('button');
-        // button1.innerHTML = 'shares';
-        // button1.onclick = showHealthSharesBarChart();
 
-        // button1.className = "share_shift";
-        // document.getElementById('vis').insertBefore(button1, document.getElementById('vis').firstChild);
+        g.append('g').attr('class', 'spider_chart');
 
-        // var button2 = document.createElement('button');
-        // button2.innerHTML = 'money spent';
-        // button2.onclick = showHealthBarChart();
+        spid_g = g.select('g');
+        spid_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
 
-        // button2.className = "money_shift";
-        // document.getElementById('vis').insertBefore(button2, document.getElementById('vis').firstChild);
         setupVis(all_data);
 
         setupSections();
@@ -147,6 +142,7 @@ var scrollVis = function () {
         bar_dataset = bar_dataset[0].data;
         var spider_dataset = all_data.filter(function (d) { return d.chartType === 'spider'; });
         spider_dataset = spider_dataset[0].data;
+        console.log(spider_dataset)
         var shares_dataset = all_data.filter(function (d) { return d.chartType === 'shares'; });
         shares_dataset = shares_dataset[0].data;
 
@@ -189,7 +185,7 @@ var scrollVis = function () {
         .range(['#033F63','#056FB0','#6F9954','#9DD977','#2B7068', '#48BDAF']);
 
         // radial chart
-        var circles = g.selectAll('.circles').data(ticks);
+        var circles = spid_g.selectAll('.circles').data(ticks);
         circles.enter()
             .append('circle')
             .attr('class', 'circles')
@@ -199,51 +195,101 @@ var scrollVis = function () {
             .attr("stroke", "gray")
             .attr("r", d=> radialScale(d))
             .attr('opacity',0)
-            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
 
-        var circle_text = g.selectAll('.circleLabels').data(ticks);
+        var circles_zero = spid_g.selectAll('.circles-zero').data(ticks2);
+        circles_zero.enter()
+            .append('circle')
+            .attr('class', 'circles-zero')
+            .attr("cx", 0)
+            .attr("cy", 0)
+            .attr("fill", "none")
+            .attr("stroke", "black")
+            .attr("r", d=> radialScale(d))
+            .attr('opacity',0)
+
+        var circle_text = spid_g.selectAll('.circleLabels').data(ticks);
         circle_text.enter()
             .append("text")
             .attr('class', 'circleLabels')
             .attr("x", 0 )
             .attr("y", d => 10 - radialScale(d) )
-            .text(d => d.toString())
-            .attr("transform", function(t) { return "rotate(-20)"})
+            .text(d => d.toString() + '%')
+            // .attr("transform", function(t) { return "rotate(-20)"})
             .attr("text-anchor","middle")
-            .style("font-size", "10px")
-            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+            .style("font-size", "12px")
+            // .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
 
             ;
 
-        var rad_bars = g.selectAll('.rad-bars').data(spider_dataset);
+        var rad_bars = spid_g.selectAll('.rad-bars').data(spider_dataset);
         rad_bars.enter()
             .append('path')
             .attr('class','rad-bars')
             .attr("fill", d => d['color'])
             .attr("d", d3.arc()     // imagine your doing a part of a donut plot
                 .innerRadius(innerRadius)
-                .outerRadius(d => rad_y(d['value_diff']))
-                .startAngle(d => rad_x(d.axis))
-                .endAngle(d => rad_x(d.axis) + rad_x.bandwidth())
+                .outerRadius(function(d) {return(d['value_diff']>0)?rad_y(d['value_diff']):rad_y(d['value_diff']/2)})
+                .startAngle(function(d) {return rad_x(d.axis) + 0.17 })
+                .endAngle(d => rad_x(d.axis) + rad_x.bandwidth() + 0.17)
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+                .on("mouseover", function(event, d) {
+                    d3.select("#tooltip")
+                      .style("left", (event.pageX-650) + "px" )
+                      .style("top", (event.pageY-900) + "px")
+                      .select("#value")
+                      .data(spider_dataset)
+                      .html("<p>"  + String(d.value_diff) +  "% " + String(d.expenses) + " expenses increase per month " + "<br>" +
+                       "household with remittances: " + String(d.value_remit) + " $ " + "<br>" +
+                       "household without remittaces: " + String(d.value_noremit) + " $ " + "</p>")
+                       .style("font-size", "11px")
+                    d3.select("#tooltip")
+                    .classed("hidden", false);
+                    })
+                .on("mouseout", function() {
+                    d3.select("#tooltip")
+                    .classed("hidden", true);
+                });
 
+        var rad_labels = spid_g.selectAll('.rad-labels').data(spider_dataset)
 
-        var rad_labels = g.selectAll('.rad-labels').data(spider_dataset)
         rad_labels.enter()
             .append('g')
             .attr('class', 'rad-labels')
             .attr("text-anchor", function(d) { return (rad_x(d.axis) + rad_x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
-            .attr("transform", function(d) { return "rotate(" + ((rad_x(d.axis) + rad_x.bandwidth() / 2) * 180 / Math.PI -90) + ")"+"translate(" + (rad_y(d['value_diff']<0)+150 + visWidth/2) + "," +  10 + ")"; })
+            .attr("transform", function(d) {return "rotate(" + (10 + (rad_x(d.axis) + rad_x.bandwidth() / 2) * 180 / Math.PI -90) + ")"+"translate(" + (rad_y(d['value_diff']<0) + 160) + "," +  0 + ")"; })
             .append("text")
             .attr("transform", function(d) { return (rad_x(d.axis) + rad_x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
             .text(function(d) { return (d.expenses); })
-            .style("font-size", "12px")
-            .attr("alignment-baseline", "middle")
-            // .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
-            ;
+            .style("font-size", "14px")
+            .attr("alignment-baseline", "middle");
 
+        const country = [["Guatemala",'#033F63'], ["El Salvador",'#2B7068'],["Honduras",'#6F9954'] ]
+
+        //legend
+        spider_legend_rect = spid_g.selectAll('.spider-legend-rect').data(country)
+        spider_legend_rect
+            .enter()
+            .append("rect")
+                .attr('class', 'spider-legend-rect')
+                .attr("y", (d, i) => (i * 25 + 250))
+                .attr("x", 200)
+                .attr("width", 20)
+                .attr("height", 20)
+                .attr("fill", d=>d[1])
+                .attr('opacity', 0);
+
+        spider_legend_text = spid_g.selectAll('.spider-legend-text').data(country)
+        spider_legend_text.enter()
+            .append("text")
+                .attr('class', 'spider-legend-rect')
+                .attr("y", (d, i) => (i * 25 +265))
+                .attr("x", 230)
+                .attr("text-anchor", "start")
+                .text(d => d[0])
+                .attr('opacity', 0);
+
+        
         // axis
         g.append('g')
             .attr('class', 'xAxis')
@@ -834,9 +880,12 @@ var scrollVis = function () {
 
         if (chartType !== "isSpiderChart") {
             svg.selectAll('.circles').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.circles-zero').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.circleLabels').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.rad-bars').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.rad-labels').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.spider-legend-text').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.spider-legend-rect').transition().duration(0).attr('opacity', 0);
 
         }
 
@@ -1059,26 +1108,46 @@ var scrollVis = function () {
 
         g.selectAll('.circles')
             .transition()
-            .duration(100)
+            .duration(300)
             .attr('opacity',1);
+
+        // g.selectAll('.circles-zero')
+        //     .transition()
+        //     .duration(300)
+        //     .attr('opacity',1);
 
         g.selectAll('.circleLabels')
             .transition()
-            .duration(100)
+            .duration(300)
             .attr('opacity',1);
 
         g.selectAll('.rad-bars')
             .transition()
             .ease(d3.easeBounce)
             .duration(600)
-            .delay(300)          
+            .delay(100)          
             .attr('opacity',1);
 
         g.selectAll('.rad-labels')
             .transition()
-            .duration(100)
+            .duration(300)
             .attr('opacity',1);
 
+        g.selectAll('.spider-legend-rect')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);  
+
+        g.selectAll('.spider-legend-text')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);
+
+        // spider_g.selectAll('path')
+        //     .transition()
+        //     .ease(d3.easeBounce)
+        //     .duration(600)
+        //     .delay(1200);
         // add Spider chart elements to appear
     }
 

@@ -23,6 +23,7 @@
         // D3 Integration adapted from tutorial by Frank Schlosser at https://franksh.com/posts/d3-mapboxgl/
 
         var container = map.getCanvasContainer();
+        
         var svg = d3
         .select(container)
         .append("svg")
@@ -35,47 +36,55 @@
             return map.project(new mapboxgl.LngLat(d[0], d[1]));
           }
         
-       
-        // Revised for proportionality
-        var data = [[-90.37, 15.70, 75.7, 29, "Guatemala"], [-88.86, 13.73, 42.7, 20.9, "El Salvador"], [-86.60, 14.83, 42, 20.3, "Honduras"]];
-        
-        
+          // Revised for proportionality
+        var data = [[-90.37, 15.70, 75.7, 29, "Guatemala", "$77.6 Billion"], [-88.86, 13.73, 42.7, 20.9, "El Salvador", "$24.6 Billion"], [-86.60, 14.83, 42, 20.3, "Honduras", "$23.8 Billion"]];
 
-        var gdp = svg
-            .selectAll("circle.first")
-            .data(data)
-            .enter()
-            .append("circle")
+        var g = svg.selectAll(null)
+          .data(data)
+          .enter()
+          .append("g")
+          .attr("transform", function(d) {
+              return "translate(" + project([d[0], d[1]]) + ")" ;
+          })
+       
+
+        g.append("circle")
             .attr("r", function(d){return d[2];})
             .style("fill", "#385941");
-            //.append("text")
-            //.text(function(d) { return d[4]; });
+    
+        g.append("text")
+            .text(function(d) { return d[4]; })
+            .attr("dy", "-.75em")
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'bold')
+            .attr('font-family', 'avenir');
 
-        var remit = svg
-            .selectAll("circle.second")
-            .data(data)
-            .enter()
-            .append("circle")
-            .attr("r", function(d){return d[3];})
-            .style("fill", "#658C4D")
-            .style("opacity", 0);
+        g.append("text")
+            .attr("dy", ".75em") // you can vary how far apart it shows up
+            .text(function(d) { return d[5]; })
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'normal')
+            .attr('font-family', 'avenir');
 
         function render() {
-            gdp
+            g.selectAll("circle")
             .attr("cx", function(d) {
             return project(d).x;
             })
             .attr("cy", function(d) {
             return project(d).y;
             });
-            remit
-            .attr("cx", function(d) {
+            g.selectAll("text")
+            .attr("x", function(d) {
             return project(d).x;
             })
-            .attr("cy", function(d) {
+            .attr("y", function(d) {
             return project(d).y;
             });
-
               }
         
         map.on("viewreset", render);
@@ -85,13 +94,13 @@
     </script>
     <script>
         d3.select("#start").on("click", function() {
-            gdp
+            g.selectAll("circle")
             .transition()
             .attr("r", function(d){return (d[2] + d[3]);}) // Add remit to radius
             .delay(200);
             });
         d3.select("#reset").on("click", function() {
-            gdp
+            g.selectAll("circle")
             .transition()
             .attr("r", function(d){return d[2];}) // Return to GDP radius
             .delay(200);

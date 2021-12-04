@@ -233,22 +233,28 @@ var scrollVis = function () {
                 .endAngle(d => rad_x(d.axis) + rad_x.bandwidth() + 0.17)
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-                .on("mouseover", function(event, d) {
+                .on("mouseover", function(d) {
+                    console.log('mouseover tip')
+                    console.log(d.value_remit)
                     d3.select("#tooltip")
-                      .style("left", (event.pageX-650) + "px" )
-                      .style("top", (event.pageY-900) + "px")
-                      .select("#value")
-                      .data(spider_dataset)
-                      .html("<p>"  + String(d.value_diff) +  "% " + String(d.expenses) + " expenses increase per month " + "<br>" +
-                       "household with remittances: " + String(d.value_remit) + " $ " + "<br>" +
-                       "household without remittaces: " + String(d.value_noremit) + " $ " + "</p>")
-                       .style("font-size", "11px")
-                    d3.select("#tooltip")
-                    .classed("hidden", false);
-                    })
+                        .transition()		
+                        .duration(200)		
+                        .style("opacity", .9)
+                        .style("left", (d3.event.pageX-650) + "px" )
+                        .style("top", (d3.event.pageY-900) + "px")
+                        .select("#value")
+                    //   .data(spider_dataset)
+                        .html("<p>"  + String(d.value_diff) +  "% " + String(d.expenses) + " expenses increase per month " + "<br>" +
+                        "household with remittances: " + String(d.value_remit) + " $ " + "<br>" +
+                        "household without remittaces: " + String(d.value_noremit) + " $ " + "</p>")
+                        .style("font-size", "11px")})
+                    // d3.select("#tooltip")
+                    // .classed("hidden", false);
+                    // })
                 .on("mouseout", function() {
-                    d3.select("#tooltip")
-                    .classed("hidden", true);
+                    console.log('mouseover out')
+                    // d3.select("#tooltip")
+                    // .classed("hidden", true);
                 });
 
         var rad_labels = spid_g.selectAll('.rad-labels').data(spider_dataset)

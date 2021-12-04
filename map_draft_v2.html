@@ -47,6 +47,10 @@
               return "translate(" + project([d[0], d[1]]) + ")" ;
           })
        
+        g.append("circle")
+          .attr("r", function(d){return d[2];})
+          .style("fill", "#001eaf")
+          .attr("class","remit");
 
         g.append("circle")
             .attr("r", function(d){return d[2];})
@@ -94,7 +98,7 @@
     </script>
     <script>
         d3.select("#start").on("click", function() {
-            g.selectAll("circle")
+            g.selectAll("circle.remit")
             .transition()
             .attr("r", function(d){return (d[2] + d[3]);}) // Add remit to radius
             .delay(200);

@@ -233,15 +233,15 @@ var scrollVis = function () {
                 .endAngle(d => rad_x(d.axis) + rad_x.bandwidth() + 0.17)
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-                .on("mouseover", function(d) {
+                .on("mouseover", function(event, d) {
                     console.log('mouseover tip')
                     console.log(d.value_remit)
                     d3.select("#tooltip")
                         .transition()		
                         .duration(200)		
                         .style("opacity", .9)
-                        .style("left", (d3.event.pageX-650) + "px" )
-                        .style("top", (d3.event.pageY-900) + "px")
+                        .style("left", (event.pageX-650) + "px" )
+                        .style("top", (event.pageY-900) + "px")
                         .select("#value")
                     //   .data(spider_dataset)
                         .html("<p>"  + String(d.value_diff) +  "% " + String(d.expenses) + " expenses increase per month " + "<br>" +

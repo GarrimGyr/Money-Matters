@@ -6,67 +6,106 @@
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style.css"/>
+  <!-- Google fonts-->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 </head>
-<body>
-<div class="container">
-    <div class="row" id="title">
-        <div class = "col-12">
-            <br><br>
-            <h1> How do Remittances Change Lives? </h1>
-            <!-- <p style="text-align: center;"> Daniel Pratama, McKenzie Humann, John Devine </p> -->
-            <hr>
-            <br><br>
-            <br><br>
-            <br><br>
-            <br><br>
 
-        </div>
-    </div>
 
-    <div id='graphic'>
+<body style="background-image: url('ASSET/background.jpg');
+              background-repeat: no-repeat;
+              background-position: center top;">
+
+  <div class="container">
+      <div class="row" id="title" >
+          <div class = "col-12" >
+              <br>
+              <h1> HOW DO REMITTANCES CHANGE LIVES? </h1>
+              <!-- <p style="text-align: center;"> Daniel Pratama, McKenzie Humann, John Devine </p> -->
+              <hr style="width:900px; border-width: 5px; background-color:#457880">
+              <br><br>
+              <br><br>
+              <br><br>
+              <br><br>
+              <br><br>
+              <br><br>
+
+          </div>
+      </div>
+
+
+    <div id='graphic' style="background-image: url('ASSET/migration.jpg');
+                  background-repeat: no-repeat;
+                  background-size: 112%;
+                  background-position: top right;">
         <div id='sections'>
-        <section class="step">
-            <div class="title">Migration and Remittances</div>
-            71% of families in the Northern Triangle that have had a family member 
-            migrate outside of the home country receive remittances.
+        <section class="step" >
+            <div class="title">
+              <h2>The Great 'Northern-Triangle' Migration</h2>
+              </div>
+              <p>The number of refugees and asylum-seekers from the northern countries in Central America has soared in the past 5 years,
+              and studies show that food security, violence, and climate variability are factors for why people flee.
+              With over 47,000 asylum-seekers from Central America worldwide, the phenomenon of migration out of destitution from Central America is likely to increase in 2021.
+              This research explores the factors that drive people in El Salvador, Guatemala, and Honduras to consider and decide to migrate irregularly or regularly,
+              as well as the cost and economic implications of migration for households and communities throughout the region.
+              We will examine how remittances impact daily life for families living in the Northern Triangle. <br><br>
+              We will look at households that have had a member migrate, divided by whether or not they receive remittances,
+              in order to better understand the specific changes in daily life that remittances enable.
+              71% of families in the Northern Triangle that have had a family member
+              migrate outside of the home country receive remittances. </p>
         </section>
         <section class="step">
-            <div class="title">Monthly Expenditures</div>
-            Of the families that have had a family member migrate, 
-            the ones who are receiving remittances spend more money per person 
-            in their household compared to families that are not receiving remittances.
+            <div class="title">
+              <h2>Monthly Expenditures</h2>
+              </div>
+              <p>Of the families that have had a family member migrate,
+              the ones who are receiving remittances spend more money per person
+              in their household compared to families that are not receiving remittances.</p>
         </section>
         <section class="step">
-        <div class="title">Monthly Expenditures</div>
-        Of the families that have had a family member migrate, 
-        the ones who are receiving remittances spend more money per person 
-        in their household compared to families that are not receiving remittances.
+            <div class="title">
+              <h2>Spending on Food</h2>
+              </div>
+              <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
+               <img src="ASSET/chicken.jpg" alt="Chicken Price Comparison" width="350" height="350">
         </section>
         <section class="step">
-            <div class="title">Spending on Food</div>
-            This difference in monthly spending can be tied to a greater spending on food per person.
+            <div class="title">
+              <h2>Spending on Healthcare</h2>
+              </div>
+              <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
         </section>
         <section class="step">
-            <div class="title">Spending on Healthcare</div>
-            This difference in monthly spending can be tied to a greater spending on food per person.
+            <div class="title">
+              <h2>Spending on Healthcare</h2>
+              </div>
+              <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
         </section>
         <section class="step">
-            <div class="title">Spending on Healthcare</div>
-            This difference in monthly spending can be tied to a greater spending on food per person.
+            <div class="title">
+              <h2>Savings</h2>
+              </div>
+              <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
+              <img src="ASSET/savings.jpg" alt="savings Comparison" width="350" height="350">
         </section>
         <section class="step">
-            <div class="title">Savings</div>
-            This difference in monthly spending can be tied to a greater spending on food per person.
+            <div class="title">
+              <h2>Savings</h2>
+              </div>
+              <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
         </section>
         <section class="step">
-            <div class="title">Savings</div>
-            This difference in monthly spending can be tied to a greater spending on food per person.
+            <div class="title">
+              <h2>All Spending Differences</h2>
+              </div>
+              <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
         </section>
+
         <section class="step">
-            <div class="title">All Spending Differences</div>
-            This difference in monthly spending can be tied to a greater spending on food per person.
         </section>
         </div>
+
         <div id='vis'>
             <div id="tooltip" class="hidden">
                 <p>
@@ -74,11 +113,66 @@
                 </p>
             </div>
         </div>
-        <div id="extra-space">
-        </div>
-  </div>
 </div>
 <script src="scroller.js"></script>
-<script src="sections.js"></script> 
+<script src="sections.js"></script>
+
+<div class="container">
+    <div class="row" id="title" style="background-image: url('ASSET/end.jpg');
+                  background-repeat: no-repeat;
+                  background-size: 110%;
+                  background-position: center bottom;">
+        <div class = "col-6" >
+            <h2> Key Findings </h2>
+            <p>Of the families that have had a family member migrate,
+            the ones who are receiving remittances spend more money per person
+            in their household compared to families that are not receiving remittances.
+
+            Of the families that have had a family member migrate,
+            the ones who are receiving remittances spend more money per person
+            in their household compared to families that are not receiving remittances.
+
+            Of the families that have had a family member migrate,
+            the ones who are receiving remittances spend more money per person
+            in their household compared to families that are not receiving remittances.
+
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            <br><br>
+            </p>
+
+            </div>
+        <div class = "col-6" >
+            <h2> Recommendations </h2>
+            <p>Of the families that have had a family member migrate,
+            the ones who are receiving remittances spend more money per person
+            in their household compared to families that are not receiving remittances.</p>
+            <ul>
+            <li> <p>recommendation 1</p>
+            <li> <p>recommendation 2</p>
+            <li> <p>recommendation 3</p>
+            <li> <p>recommendation 4</p></ul>
+            </div>
+        </div>
+
+          <br><br>
+          <p style="text-align: center;"> Daniel Pratama, McKenzie Humann, John Devine </p>
+
+
+        </div>
+    </div>
+
+
+
 </body>
 </html>

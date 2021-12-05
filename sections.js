@@ -13,7 +13,7 @@ var scrollVis = function () {
 
     var chartMargin = {top: 30, left: 85, bottom: 10, right: 10};
     var chartWidth = visWidth - margin.left - margin.right - chartMargin.left - chartMargin.right;
-    var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom; 
+    var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom;
 
     var innerRadius = 120;
     var outerRadius = Math.min(visWidth, visHeight) / 2;   // the outerRadius goes from the middle of the SVG area to the border
@@ -279,7 +279,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top + 20)
             .text('Median by country');
-    
+
         g.selectAll('.exp-title')
             .attr('opacity', 0);
 
@@ -288,7 +288,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Monthly Spending on Food per capita');
-    
+
         g.append('text')
             .attr('class', 'sub-title food-title')
             .attr('x', margin.left)
@@ -303,7 +303,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Monthly Spending on Healthcare per capita');
-    
+
         g.append('text')
             .attr('class', 'sub-title health-title')
             .attr('x', margin.left)
@@ -318,7 +318,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Share of Households Spending Money on Healthcare');
-    
+
         g.append('text')
             .attr('class', 'sub-title shares-health-title')
             .attr('x', margin.left)
@@ -333,13 +333,13 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Monthly Savings per capita');
-    
+
         g.append('text')
             .attr('class', 'sub-title save-title')
             .attr('x', margin.left)
             .attr('y', margin.top + 20)
             .text('Median by country');
-        
+
         g.selectAll('.save-title')
             .attr('opacity', 0);
 
@@ -348,7 +348,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Share of Households Saving Money');
-    
+
         g.append('text')
             .attr('class', 'sub-title shares-save-title')
             .attr('x', margin.left)
@@ -726,15 +726,16 @@ var scrollVis = function () {
     var setupSections = function () {
         // activateFunctions are called each
         // time the active section changes
-        activateFunctions[0] = showTitle;
+        activateFunctions[0] = end;
         activateFunctions[1] = showExpBarChart;
-        activateFunctions[2] = showExpPointer;
-        activateFunctions[3] = showFoodBarChart;
-        activateFunctions[4] = showHealthSharesBarChart;
-        activateFunctions[5] = showHealthBarChart;
-        activateFunctions[6] = showSaveSharesBarChart;
-        activateFunctions[7] = showSaveBarChart;
-        activateFunctions[8] = showSpiderChart;
+        activateFunctions[2] = showFoodBarChart;
+        activateFunctions[3] = showHealthSharesBarChart;
+        activateFunctions[4] = showHealthBarChart;
+        activateFunctions[5] = showSaveSharesBarChart;
+        activateFunctions[6] = showSaveBarChart;
+        activateFunctions[7] = showSpiderChart;
+        activateFunctions[8] = end;
+
 
         // updateFunctions are called while
         // in a particular section to update
@@ -745,7 +746,6 @@ var scrollVis = function () {
         updateFunctions[0] = function () {};
         // updateFunctions[1] = addRemitExp;
         updateFunctions[1] = function () {};
-
         updateFunctions[2] = function () {};
         updateFunctions[3] = function () {};
         updateFunctions[4] = function () {};
@@ -850,7 +850,7 @@ var scrollVis = function () {
      * shows: intro title
      *
      */
-    function showTitle() {
+    function end() {
         clean('none');
     }
 
@@ -875,7 +875,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.exp-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -911,7 +911,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.food-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -943,7 +943,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.health-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -975,7 +975,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xShareBarScale(d.value);});
- 
+
         // g.selectAll('.health-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1007,7 +1007,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.save-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1038,7 +1038,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xShareBarScale(d.value);});
- 
+
         // g.selectAll('.save-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1071,7 +1071,7 @@ var scrollVis = function () {
             .transition()
             .ease(d3.easeBounce)
             .duration(600)
-            .delay(300)          
+            .delay(300)
             .attr('opacity',1);
 
         g.selectAll('.rad-labels')
@@ -1127,7 +1127,7 @@ var scrollVis = function () {
         .transition().duration(300)
         .style('opacity', 0);
     }
-    
+
     function hideSharesXAxis() {
         svg.select('.xSharesAxis')
         .transition().duration(300)
@@ -1152,7 +1152,7 @@ var scrollVis = function () {
             .transition()
             .delay(function (d, i) { return 200 * (i + 1);})
             .duration(0)
-            .attr('width', function(d) {console.log(xBarScale(d.no_remit) + (progress * (xBarScale(d.remit) - xBarScale(d.no_remit)))); 
+            .attr('width', function(d) {console.log(xBarScale(d.no_remit) + (progress * (xBarScale(d.remit) - xBarScale(d.no_remit))));
                 return (progress * (xBarScale(d.remit) - xBarScale(d.no_remit)));});
     }
     /**
@@ -1258,7 +1258,7 @@ var scrollVis = function () {
         });
 
 
-        
+
     }
 
 // load data and display
@@ -1269,7 +1269,7 @@ Promise.all([
                 gt_noremit: +d.GT_noremit,
                 gt_remit: +d.GT_remit,
                 hnd_noremit: +d.HND_noremit,
-                hnd_remit: +d.HND_remit,        
+                hnd_remit: +d.HND_remit,
                 slv_noremit: +d.SLV_noremit,
                 slv_remit: +d.SLV_remit
             }}),
@@ -1290,7 +1290,7 @@ Promise.all([
             gt_noremit: +d.GT_noremit *100,
             gt_remit: +d.GT_remit*100,
             hnd_noremit: +d.HND_noremit*100,
-            hnd_remit: +d.HND_remit*100,        
+            hnd_remit: +d.HND_remit*100,
             slv_noremit: +d.SLV_noremit*100,
             slv_remit: +d.SLV_remit*100
         }

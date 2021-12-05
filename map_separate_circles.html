@@ -19,7 +19,8 @@
             container: "map",
             style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
             center: [-88.020,15.468],
-            zoom: 5.75
+            zoom: 5.75,
+            interactive: false
         });
 
         // Mapbox + D3 Integration adapted from tutorial by Frank Schlosser at https://franksh.com/posts/d3-mapboxgl/
@@ -39,7 +40,7 @@
           }
         
         // Data for GDP expansion vizualizations
-        var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 Billion", "#033F63", "+14.7%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 Billion", "#2B7068","+24.1%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 Billion", "#6F9954", "+23.5%", 20.3]];
+        var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 Billion", "#033F63", "+15%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 Billion", "#2B7068","+24%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 Billion", "#6F9954", "+24%", 20.3]];
         
         // Create D3 group
         var g = svg.selectAll(null)
@@ -50,32 +51,26 @@
               return "translate(" + project([d[0], d[1]]) + ")" ;
           })
         
-        //Create remittance expansion circles
-        g.append("circle")
-          .attr("r", function(d){return d[2];})
-          .style("fill", "#fa6e06")
-          .style("opacity","0")
-          .attr("class","remit");
-        
         //Create white circles for opacity backing
-        g.append("circle")
-          .attr("r", function(d){return d[2];})
-          .style("opacity", "1")
-          .style("fill", "#ffffff")
-          .attr("class","opacity_back");
+        //g.append("circle")
+        //  .attr("r", function(d){return d[2];})
+        //  .style("opacity", "1")
+        //  .style("fill", "#ffffff")
+        //  .attr("class","opacity_back");
         
         //Create GDP circles
         g.append("circle")
             .attr("r", function(d){return d[2];})
-            .style("opacity", ".9")
-            .style("fill", function(d){return d[6];});
+            .style("opacity", ".97")
+            .style("fill", function(d){return d[6];})
+            .attr("class","GDP_circles");
         
         //Create separate remit circles
-        //g.append("circle")
-        //    .attr("r", function(d){return d[8];})
-        //    .style("fill", "#fa6e06")
-        //    .style("opacity", ".9")
-        //    .attr("class","remit_circles");
+        g.append("circle")
+            .attr("r", function(d){return d[8];})
+            .style("fill", "#fa6e06")
+            .style("opacity", "0")
+            .attr("class","remit_circle");
         
         //Label circles with country names
         g.append("text")
@@ -85,7 +80,8 @@
             .attr('alignment-baseline', 'middle')
             .attr('fill', 'white')
             .attr('font-weight', 'bold')
-            .attr('font-family', 'avenir');
+            .attr('font-family', 'avenir')
+            .attr("class","names");
         
         // Label circles with GDP
         g.append("text")
@@ -98,20 +94,21 @@
             .attr('font-family', 'avenir')
             .attr("class","gdp");
         
-        // Label circles with percent change in GDP
+        // Label remit circles with percent change in GDP
         g.append("text")
-            .attr("dy", ".75em") // line break hack
+            //.attr("dy", ".75em") // line break hack
             .text(function(d) { return d[7]; })
             .attr('text-anchor', 'middle')
             .attr('alignment-baseline', 'middle')
             .attr('fill', 'white')
-            .attr('font-weight', 'normal')
+            .attr('font-weight', 'bold')
             .attr('font-family', 'avenir')
             .style("opacity","0")
             .attr("class","percent_change");
         
         // Redraw coordinates with changes in mapbox viewer
         function render() {
+            // GDP circles
             g.selectAll("circle")
             .attr("cx", function(d) {
             return project(d).x;
@@ -119,22 +116,24 @@
             .attr("cy", function(d) {
             return project(d).y;
             });
+
+            // GDP text
             g.selectAll("text")
             .attr("x", function(d) {
             return project(d).x;
             })
             .attr("y", function(d) {
             return project(d).y;
-            
-            });
+             });
 
-           // g.selectAll("circle.remit_circles")
-           // .attr("cx", function(d) {
-           // return project(d).x+d[2]+d[8];
-          //  })
-          //  .attr("cy", function(d) {
-          //  return project(d).y;
-          //  });
+            // Remit circles
+            g.selectAll("circle.remit_circles")
+            .attr("cx", function(d) {
+            return project(d).x+d[2]+d[8];
+            })
+            .attr("cy", function(d) {
+            return project(d).y;
+            });
               }
         
         map.on("viewreset", render);
@@ -146,31 +145,74 @@
 
         // Trigger animation
         d3.select("#start").on("click", function() {
-            g.selectAll("circle.remit")
+            g.selectAll("circle.GDP_circles")
                 .transition()
-                .style("opacity",".9")
-                .attr("r", function(d){return d[3];}) // Change radius to remit-added value
-                .delay(200);
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x-(d[8]/2);
+                    });
+            g.selectAll("circle.remit_circle")
+                .transition()
+                .style("opacity","1")
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x+d[2]+(d[8]/2);
+                    });
+            g.selectAll("text.names")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x-(d[8]/2);
+                        })
+                    .delay(200);
             g.selectAll("text.gdp")
-                .style("opacity","0");
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x-(d[8]/2);
+                        })
+                    .delay(200);
             g.selectAll("text.percent_change")
-                .style("opacity","1");
+                .transition()
+                .style("opacity","1")
+                .attr("x", function(d) {
+                    return project(d).x+d[2]+(d[8]/2);
+                    })
+                .delay(200);
             });
         
         // Reset animation
         d3.select("#reset").on("click", function() {
-            g.selectAll("circle")
+            g.selectAll("circle.GDP_circles")
                 .transition()
-                .attr("r", function(d){return d[2];}) // Return to GDP radius
-                .delay(200);
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x+(d[8]/2);
+                    });
+            g.selectAll("circle.remit_circle")
+                .transition()
+                .style("opacity","0")
+                .attr("cx", function(d) {
+                    return project(d).x-d[2]-(d[8]/2);
+                    })
+                .delay(10);
+            g.selectAll("text.names")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x+(d[8]/2);
+                        })
+                    .delay(200);
             g.selectAll("text.gdp")
-                .transition()
-                .style("opacity","1")
-                .delay(200);
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x+(d[8]/2);
+                        })
+                    .delay(200);
             g.selectAll("text.percent_change")
                 .transition()
                 .style("opacity","0")
-                .delay(200);
+                .attr("x", function(d) {
+                    return project(d).x-d[2]-(d[8]/2);
+                    })
+                .delay(10);
         });
     </script>
 </body>

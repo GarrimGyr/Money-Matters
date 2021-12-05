@@ -51,17 +51,10 @@
               return "translate(" + project([d[0], d[1]]) + ")" ;
           })
         
-        //Create white circles for opacity backing
-        //g.append("circle")
-        //  .attr("r", function(d){return d[2];})
-        //  .style("opacity", "1")
-        //  .style("fill", "#ffffff")
-        //  .attr("class","opacity_back");
-        
         //Create GDP circles
         g.append("circle")
             .attr("r", function(d){return d[2];})
-            .style("opacity", ".97")
+            .style("opacity", "1")
             .style("fill", function(d){return d[6];})
             .attr("class","GDP_circles");
         

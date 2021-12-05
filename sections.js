@@ -10,15 +10,13 @@ var scrollVis = function () {
     var visWidth = 700;
     var visHeight = 700;
     var margin = { top: 200, left: 30, bottom: 150, right: 10 };
-    var spiderMargin = {top: 30, left:30, bottom: 50, right: 30};
 
     var chartMargin = {top: 30, left: 85, bottom: 10, right: 10};
     var chartWidth = visWidth - margin.left - margin.right - chartMargin.left - chartMargin.right;
-    var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom; 
+    var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom;
 
-    var innerRadius = 80;
-    var outerRadius = Math.min(visWidth - spiderMargin.left - spiderMargin.right, visHeight - spiderMargin.top - spiderMargin.bottom) / 2;   // the outerRadius goes from the middle of the SVG area to the border
-
+    var innerRadius = 120;
+    var outerRadius = Math.min(visWidth, visHeight) / 2;   // the outerRadius goes from the middle of the SVG area to the border
 
     // Keep track of which visualization
     // we are on and which was the last
@@ -80,7 +78,6 @@ var scrollVis = function () {
     var radialScale = d3.scaleLinear()
         .domain([0,300])
         .range([innerRadius,outerRadius]);
-
     var ticks = [0,50,100,150,200];
     var ticks2 = [0];
 
@@ -120,11 +117,17 @@ var scrollVis = function () {
         // this group element will be used to contain all
         // other elements.
         g = svg.select('g')
+            // .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+        // var button1 = document.createElement('button');
+        // button1.innerHTML = 'shares';
+        // button1.onclick = showHealthSharesBarChart();
 
-        g.append('g').attr('class', 'spider_chart');
+        // button1.className = "share_shift";
+        // document.getElementById('vis').insertBefore(button1, document.getElementById('vis').firstChild);
 
-        spid_g = g.select('g');
-        spid_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+        // var button2 = document.createElement('button');
+        // button2.innerHTML = 'money spent';
+        // button2.onclick = showHealthBarChart();
 
 
         // Mapbox setup 
@@ -162,7 +165,6 @@ var scrollVis = function () {
         bar_dataset = bar_dataset[0].data;
         var spider_dataset = all_data.filter(function (d) { return d.chartType === 'spider'; });
         spider_dataset = spider_dataset[0].data;
-        console.log(spider_dataset)
         var shares_dataset = all_data.filter(function (d) { return d.chartType === 'shares'; });
         shares_dataset = shares_dataset[0].data;
 
@@ -210,7 +212,7 @@ var scrollVis = function () {
         .domain(ySubGroupValues)
         .range([0.6, 1]);
         // radial chart
-        var circles = spid_g.selectAll('.circles').data(ticks);
+        var circles = g.selectAll('.circles').data(ticks);
         circles.enter()
             .append('circle')
             .attr('class', 'circles')
@@ -220,33 +222,23 @@ var scrollVis = function () {
             .attr("stroke", "gray")
             .attr("r", d=> radialScale(d))
             .attr('opacity',0)
+            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
 
-        var circles_zero = spid_g.selectAll('.circles-zero').data(ticks2);
-        circles_zero.enter()
-            .append('circle')
-            .attr('class', 'circles-zero')
-            .attr("cx", 0)
-            .attr("cy", 0)
-            .attr("fill", "none")
-            .attr("stroke", "black")
-            .attr("r", d=> radialScale(d))
-            .attr('opacity',0)
-
-        var circle_text = spid_g.selectAll('.circleLabels').data(ticks);
+        var circle_text = g.selectAll('.circleLabels').data(ticks);
         circle_text.enter()
             .append("text")
             .attr('class', 'circleLabels')
             .attr("x", 0 )
             .attr("y", d => 10 - radialScale(d) )
-            .text(d => d.toString() + '%')
-            // .attr("transform", function(t) { return "rotate(-20)"})
+            .text(d => d.toString())
+            .attr("transform", function(t) { return "rotate(-20)"})
             .attr("text-anchor","middle")
-            .style("font-size", "12px")
-            // .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+            .style("font-size", "10px")
+            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
 
             ;
 
-        var rad_bars = spid_g.selectAll('.rad-bars').data(spider_dataset);
+        var rad_bars = g.selectAll('.rad-bars').data(spider_dataset);
         rad_bars.enter()
             .append('path')
             .attr('class','rad-bars')
@@ -280,43 +272,20 @@ var scrollVis = function () {
 
         var rad_labels = spid_g.selectAll('.rad-labels').data(spider_dataset)
 
+        var rad_labels = g.selectAll('.rad-labels').data(spider_dataset)
         rad_labels.enter()
             .append('g')
             .attr('class', 'rad-labels')
             .attr("text-anchor", function(d) { return (rad_x(d.axis) + rad_x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "end" : "start"; })
-            .attr("transform", function(d) {return "rotate(" + (10 + (rad_x(d.axis) + rad_x.bandwidth() / 2) * 180 / Math.PI -90) + ")"+"translate(" + (rad_y(d['value_diff']<0) + 160) + "," +  0 + ")"; })
+            .attr("transform", function(d) { return "rotate(" + ((rad_x(d.axis) + rad_x.bandwidth() / 2) * 180 / Math.PI -90) + ")"+"translate(" + (rad_y(d['value_diff']<0)+150 + visWidth/2) + "," +  10 + ")"; })
             .append("text")
             .attr("transform", function(d) { return (rad_x(d.axis) + rad_x.bandwidth() / 2 + Math.PI) % (2 * Math.PI) < Math.PI ? "rotate(180)" : "rotate(0)"; })
             .text(function(d) { return (d.expenses); })
-            .style("font-size", "14px")
-            .attr("alignment-baseline", "middle");
+            .style("font-size", "12px")
+            .attr("alignment-baseline", "middle")
+            // .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+            ;
 
-        const country = [["Guatemala",'#033F63'], ["El Salvador",'#2B7068'],["Honduras",'#6F9954'] ]
-
-        //legend
-        spider_legend_rect = spid_g.selectAll('.spider-legend-rect').data(country)
-        spider_legend_rect
-            .enter()
-            .append("rect")
-                .attr('class', 'spider-legend-rect')
-                .attr("y", (d, i) => (i * 25 + 250))
-                .attr("x", 200)
-                .attr("width", 20)
-                .attr("height", 20)
-                .attr("fill", d=>d[1])
-                .attr('opacity', 0);
-
-        spider_legend_text = spid_g.selectAll('.spider-legend-text').data(country)
-        spider_legend_text.enter()
-            .append("text")
-                .attr('class', 'spider-legend-rect')
-                .attr("y", (d, i) => (i * 25 +265))
-                .attr("x", 230)
-                .attr("text-anchor", "start")
-                .text(d => d[0])
-                .attr('opacity', 0);
-
-        
         // axis
         g.append('g')
             .attr('class', 'xAxis')
@@ -352,7 +321,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top + 20)
             .text('Median by country');
-    
+
         g.selectAll('.exp-title')
             .attr('opacity', 0);
 
@@ -361,7 +330,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Monthly Spending on Food per capita');
-    
+
         g.append('text')
             .attr('class', 'sub-title food-title')
             .attr('x', margin.left)
@@ -376,7 +345,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Monthly Spending on Healthcare per capita');
-    
+
         g.append('text')
             .attr('class', 'sub-title health-title')
             .attr('x', margin.left)
@@ -391,7 +360,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Share of Households Spending Money on Healthcare');
-    
+
         g.append('text')
             .attr('class', 'sub-title shares-health-title')
             .attr('x', margin.left)
@@ -406,13 +375,13 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Monthly Savings per capita');
-    
+
         g.append('text')
             .attr('class', 'sub-title save-title')
             .attr('x', margin.left)
             .attr('y', margin.top + 20)
             .text('Median by country');
-        
+
         g.selectAll('.save-title')
             .attr('opacity', 0);
 
@@ -421,7 +390,7 @@ var scrollVis = function () {
             .attr('x', margin.left)
             .attr('y', margin.top)
             .text('Share of Households Saving Money');
-    
+
         g.append('text')
             .attr('class', 'sub-title shares-save-title')
             .attr('x', margin.left)
@@ -805,13 +774,17 @@ var scrollVis = function () {
     var setupSections = function () {
         // activateFunctions are called each
         // time the active section changes
-        activateFunctions[0] = showMap;
+
+        activateFunctions[0] = end;
         activateFunctions[1] = showExpBarChart;
         activateFunctions[2] = showFoodBarChart;
         activateFunctions[3] = showHealthSharesBarChart;
-        activateFunctions[4] = showSaveSharesBarChart;
-        activateFunctions[5] = showSaveBarChart;
-        activateFunctions[6] = showSpiderChart;
+        activateFunctions[4] = showHealthBarChart;
+        activateFunctions[5] = showSaveSharesBarChart;
+        activateFunctions[6] = showSaveBarChart;
+        activateFunctions[7] = showSpiderChart;
+        activateFunctions[8] = end;
+
 
         // updateFunctions are called while
         // in a particular section to update
@@ -822,7 +795,6 @@ var scrollVis = function () {
         updateFunctions[0] = function () {};
         // updateFunctions[1] = addRemitExp;
         updateFunctions[1] = function () {};
-
         updateFunctions[2] = function () {};
         updateFunctions[3] = function () {};
         updateFunctions[4] = function () {};
@@ -909,7 +881,6 @@ var scrollVis = function () {
 
         if (chartType !== "isSpiderChart") {
             svg.selectAll('.circles').transition().duration(0).attr('opacity', 0);
-            svg.selectAll('.circles-zero').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.circleLabels').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.rad-bars').transition().duration(0).attr("d", d3.arc()     // imagine your doing a part of a donut plot
                 .innerRadius(innerRadius)
@@ -920,6 +891,7 @@ var scrollVis = function () {
                 .padAngle(0.01)
                 .padRadius(innerRadius));
             svg.selectAll('.rad-labels').transition().duration(0).attr('opacity', 0);
+
             svg.selectAll('.spider-legend-text').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.spider-legend-rect').transition().duration(0).attr('opacity', 0);
         }
@@ -964,7 +936,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.exp-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -996,7 +968,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.food-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1028,7 +1000,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.health-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1060,7 +1032,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xShareBarScale(d.value);});
- 
+
         // g.selectAll('.health-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1092,7 +1064,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xBarScale(d.value);});
- 
+
         // g.selectAll('.save-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1123,7 +1095,7 @@ var scrollVis = function () {
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
           .duration(function (d, i) { if (i%2==0) {return 300} else {return 1000};})
           .attr('width', function(d) {return xShareBarScale(d.value);});
- 
+
         // g.selectAll('.save-bar-num')
         //   .transition()
         //   .delay(function (d, i) { return 400 + 300 * (i + 1);})
@@ -1144,17 +1116,12 @@ var scrollVis = function () {
 
         g.selectAll('.circles')
             .transition()
-            .duration(300)
+            .duration(100)
             .attr('opacity',1);
-
-        // g.selectAll('.circles-zero')
-        //     .transition()
-        //     .duration(300)
-        //     .attr('opacity',1);
 
         g.selectAll('.circleLabels')
             .transition()
-            .duration(300)
+            .duration(100)
             .attr('opacity',1);
 
         g.selectAll('.rad-bars')
@@ -1173,7 +1140,7 @@ var scrollVis = function () {
 
         g.selectAll('.rad-labels')
             .transition()
-            .duration(300)
+            .duration(100)
             .attr('opacity',1);
 
         g.selectAll('.spider-legend-rect')
@@ -1240,7 +1207,7 @@ var scrollVis = function () {
         .transition().duration(300)
         .style('opacity', 0);
     }
-    
+
     function hideSharesXAxis() {
         svg.select('.xSharesAxis')
         .transition().duration(300)
@@ -1265,7 +1232,7 @@ var scrollVis = function () {
             .transition()
             .delay(function (d, i) { return 200 * (i + 1);})
             .duration(0)
-            .attr('width', function(d) {console.log(xBarScale(d.no_remit) + (progress * (xBarScale(d.remit) - xBarScale(d.no_remit)))); 
+            .attr('width', function(d) {console.log(xBarScale(d.no_remit) + (progress * (xBarScale(d.remit) - xBarScale(d.no_remit))));
                 return (progress * (xBarScale(d.remit) - xBarScale(d.no_remit)));});
     }
     /**
@@ -1371,7 +1338,7 @@ var scrollVis = function () {
         });
 
 
-        
+
     }
 
 // load data and display
@@ -1382,7 +1349,7 @@ Promise.all([
                 gt_noremit: +d.GT_noremit,
                 gt_remit: +d.GT_remit,
                 hnd_noremit: +d.HND_noremit,
-                hnd_remit: +d.HND_remit,        
+                hnd_remit: +d.HND_remit,
                 slv_noremit: +d.SLV_noremit,
                 slv_remit: +d.SLV_remit
             }}),
@@ -1403,7 +1370,7 @@ Promise.all([
             gt_noremit: +d.GT_noremit *100,
             gt_remit: +d.GT_remit*100,
             hnd_noremit: +d.HND_noremit*100,
-            hnd_remit: +d.HND_remit*100,        
+            hnd_remit: +d.HND_remit*100,
             slv_noremit: +d.SLV_noremit*100,
             slv_remit: +d.SLV_remit*100
         }

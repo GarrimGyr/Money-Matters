@@ -19,6 +19,7 @@ var scrollVis = function () {
     var innerRadius = 80;
     var outerRadius = Math.min(visWidth - spiderMargin.left - spiderMargin.right, visHeight - spiderMargin.top - spiderMargin.bottom) / 2;   // the outerRadius goes from the middle of the SVG area to the border
 
+
     // Keep track of which visualization
     // we are on and which was the last
     // index activated. When user scrolls
@@ -26,8 +27,6 @@ var scrollVis = function () {
     // activate functions that they pass.
     var lastIndex = -1;
     var activeIndex = 0;
-
-
 
 
     // main svg used for visualization
@@ -126,6 +125,24 @@ var scrollVis = function () {
 
         spid_g = g.select('g');
         spid_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+
+        g.append('g').attr('class', 'map_g');
+        map_g = g.select('g');
+
+        // Mapbox setup 
+        mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+        const map = new mapboxgl.Map({
+            container: "map",
+            style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+            center: [-88.020,15.468],
+            zoom: 5.75,
+            interactive: false
+
+        });
+
+        // var container = map.getCanvasContainer();
+
+
 
         setupVis(all_data);
 
@@ -787,15 +804,13 @@ var scrollVis = function () {
     var setupSections = function () {
         // activateFunctions are called each
         // time the active section changes
-        activateFunctions[0] = showTitle;
+        activateFunctions[0] = showMap;
         activateFunctions[1] = showExpBarChart;
-        activateFunctions[2] = showExpPointer;
-        activateFunctions[3] = showFoodBarChart;
-        activateFunctions[4] = showHealthSharesBarChart;
-        activateFunctions[5] = showHealthBarChart;
-        activateFunctions[6] = showSaveSharesBarChart;
-        activateFunctions[7] = showSaveBarChart;
-        activateFunctions[8] = showSpiderChart;
+        activateFunctions[2] = showFoodBarChart;
+        activateFunctions[3] = showHealthSharesBarChart;
+        activateFunctions[4] = showSaveSharesBarChart;
+        activateFunctions[5] = showSaveBarChart;
+        activateFunctions[6] = showSpiderChart;
 
         // updateFunctions are called while
         // in a particular section to update
@@ -812,8 +827,6 @@ var scrollVis = function () {
         updateFunctions[4] = function () {};
         updateFunctions[5] = function () {};
         updateFunctions[6] = function () {};
-        updateFunctions[7] = function () {};
-        updateFunctions[8] = function () {};
 
     };
 
@@ -834,7 +847,7 @@ var scrollVis = function () {
 
      function clean(chartType){
         let svg = d3.select('#vis').select('svg')
-        if (chartType !== "isExpBar" & chartType !== 'isExpPointer') {
+        if (chartType !== "isExpBar") {
             hideXAxis()
             hideYAxis()
             svg.selectAll('.exp-title').transition().duration(0).attr('opacity', 0);
@@ -908,8 +921,11 @@ var scrollVis = function () {
             svg.selectAll('.rad-labels').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.spider-legend-text').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.spider-legend-rect').transition().duration(0).attr('opacity', 0);
+        }
 
-            d3.select("#tooltip").attr('fill','#F3EDDA');        
+
+        if (chartType !== 'isMap'){
+            d3.select("#map").classed("hidden", true);
         }
 
     }
@@ -922,17 +938,17 @@ var scrollVis = function () {
      * shows: intro title
      *
      */
-    function showTitle() {
+    function end() {
         clean('none');
     }
 
-    /**
-     * showFillerTitle - filler counts
-     *
-     * hides: intro title
-     * shows: filler count title
-     *
-     */
+    function showMap() {
+        clean('isMap');
+        d3.select("#map").classed("hidden", false);
+        console.log('map shown');
+       }
+
+
     function showExpBarChart() {
         clean('isExpBar');
         showXAxis(xBarScale);
@@ -962,10 +978,6 @@ var scrollVis = function () {
 
     }
 
-    function showExpPointer() {
-        showExpBarChart();
-
-    }
 
     function showFoodBarChart() {
         clean('isFoodBar');

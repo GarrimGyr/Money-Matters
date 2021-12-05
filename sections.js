@@ -126,8 +126,6 @@ var scrollVis = function () {
         spid_g = g.select('g');
         spid_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
 
-        g.append('g').attr('class', 'map_g');
-        map_g = g.select('g');
 
         // Mapbox setup 
         mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
@@ -139,6 +137,9 @@ var scrollVis = function () {
             interactive: false
 
         });
+
+
+
 
         // var container = map.getCanvasContainer();
 
@@ -925,7 +926,7 @@ var scrollVis = function () {
 
 
         if (chartType !== 'isMap'){
-            d3.select("#map").classed("hidden", true);
+            d3.select("#map").style.display = 'none';
         }
 
     }
@@ -944,7 +945,7 @@ var scrollVis = function () {
 
     function showMap() {
         clean('isMap');
-        d3.select("#map").classed("hidden", false);
+        d3.select("#map").style.display = 'inline-block';
         console.log('map shown');
        }
 

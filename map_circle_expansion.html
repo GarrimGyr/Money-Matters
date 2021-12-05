@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+<title>NT Map v1</title>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+    <button id="start">Transition</button>
+    <button id="reset">Reset</button>
+    <div id="map" style= 'width: 800px; height: 600px; z-index: 0;'></div>
+    <script>
+
+        // Mapbox setup 
+        mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+        const map = new mapboxgl.Map({
+            container: "map",
+            style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+            center: [-88.020,15.468],
+            zoom: 5.75
+        });
+
+        // Mapbox + D3 Integration adapted from tutorial by Frank Schlosser at https://franksh.com/posts/d3-mapboxgl/
+
+        var container = map.getCanvasContainer();
+        
+        var svg = d3
+        .select(container)
+        .append("svg")
+        .attr("width", "800px")
+        .attr("height", "600px")
+        .style("position", "absolute")
+        .style("z-index", 2);
+
+        function project(d) {
+            return map.project(new mapboxgl.LngLat(d[0], d[1]));
+          }
+        
+        // Data for GDP expansion vizualizations
+        var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 Billion", "#033F63", "+14.7%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 Billion", "#2B7068","+24.1%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 Billion", "#6F9954", "+23.5%", 20.3]];
+        
+        // Create D3 group
+        var g = svg.selectAll(null)
+          .data(data)
+          .enter()
+          .append("g")
+          .attr("transform", function(d) {
+              return "translate(" + project([d[0], d[1]]) + ")" ;
+          })
+        
+        //Create remittance expansion circles
+        g.append("circle")
+          .attr("r", function(d){return d[2];})
+          .style("fill", "#fa6e06")
+          .style("opacity","0")
+          .attr("class","remit");
+        
+        //Create white circles for opacity backing
+        g.append("circle")
+          .attr("r", function(d){return d[2];})
+          .style("opacity", "1")
+          .style("fill", "#ffffff")
+          .attr("class","opacity_back");
+        
+        //Create GDP circles
+        g.append("circle")
+            .attr("r", function(d){return d[2];})
+            .style("opacity", ".9")
+            .style("fill", function(d){return d[6];});
+        
+        //Create separate remit circles
+        //g.append("circle")
+        //    .attr("r", function(d){return d[8];})
+        //    .style("fill", "#fa6e06")
+        //    .style("opacity", ".9")
+        //    .attr("class","remit_circles");
+        
+        //Label circles with country names
+        g.append("text")
+            .text(function(d) { return d[4]; })
+            .attr("dy", "-.75em")
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'bold')
+            .attr('font-family', 'avenir');
+        
+        // Label circles with GDP
+        g.append("text")
+            .attr("dy", ".75em") // line break hack
+            .text(function(d) { return d[5]; })
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'normal')
+            .attr('font-family', 'avenir')
+            .attr("class","gdp");
+        
+        // Label circles with percent change in GDP
+        g.append("text")
+            .attr("dy", ".75em") // line break hack
+            .text(function(d) { return d[7]; })
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'normal')
+            .attr('font-family', 'avenir')
+            .style("opacity","0")
+            .attr("class","percent_change");
+        
+        // Redraw coordinates with changes in mapbox viewer
+        function render() {
+            g.selectAll("circle")
+            .attr("cx", function(d) {
+            return project(d).x;
+            })
+            .attr("cy", function(d) {
+            return project(d).y;
+            });
+            g.selectAll("text")
+            .attr("x", function(d) {
+            return project(d).x;
+            })
+            .attr("y", function(d) {
+            return project(d).y;
+            
+            });
+
+           // g.selectAll("circle.remit_circles")
+           // .attr("cx", function(d) {
+           // return project(d).x+d[2]+d[8];
+          //  })
+          //  .attr("cy", function(d) {
+          //  return project(d).y;
+          //  });
+              }
+        
+        map.on("viewreset", render);
+        map.on("move", render);
+        map.on("moveend", render);
+        render(); // Call once to render
+    </script>
+    <script>
+
+        // Trigger animation
+        d3.select("#start").on("click", function() {
+            g.selectAll("circle.remit")
+                .transition()
+                .style("opacity",".9")
+                .attr("r", function(d){return d[3];}) // Change radius to remit-added value
+                .delay(200);
+            g.selectAll("text.gdp")
+                .style("opacity","0");
+            g.selectAll("text.percent_change")
+                .style("opacity","1");
+            });
+        
+        // Reset animation
+        d3.select("#reset").on("click", function() {
+            g.selectAll("circle")
+                .transition()
+                .attr("r", function(d){return d[2];}) // Return to GDP radius
+                .delay(200);
+            g.selectAll("text.gdp")
+                .transition()
+                .style("opacity","1")
+                .delay(200);
+            g.selectAll("text.percent_change")
+                .transition()
+                .style("opacity","0")
+                .delay(200);
+        });
+    </script>
+</body>
+</html>

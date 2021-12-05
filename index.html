@@ -3,7 +3,8 @@
 <head>
   <title>Scrolling Sections</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
-
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.0/mapbox-gl.js"></script>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
   <link rel="stylesheet" type="text/css" href="style.css"/>
   <!-- Google fonts-->
@@ -70,6 +71,7 @@
               <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
                <img src="ASSET/chicken.jpg" alt="Chicken Price Comparison" width="350" height="350">
         </section>
+
         <section class="step">
             <div class="title">
               <h2>Spending on Healthcare</h2>
@@ -94,6 +96,7 @@
               <h2>Savings</h2>
               </div>
               <p>This difference in monthly spending can be tied to a greater spending on food per person.</p>
+
         </section>
         <section class="step">
             <div class="title">
@@ -107,6 +110,8 @@
         </div>
 
         <div id='vis'>
+          
+            <div id="map" class="hidden"></div>
             <div id="tooltip" class="hidden">
                 <p>
                     <span id="value">100</span>

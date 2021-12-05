@@ -17,6 +17,7 @@ var scrollVis = function () {
 
     var innerRadius = 120;
     var outerRadius = Math.min(visWidth, visHeight) / 2;   // the outerRadius goes from the middle of the SVG area to the border
+
     // Keep track of which visualization
     // we are on and which was the last
     // index activated. When user scrolls
@@ -128,8 +129,25 @@ var scrollVis = function () {
         // button2.innerHTML = 'money spent';
         // button2.onclick = showHealthBarChart();
 
-        // button2.className = "money_shift";
-        // document.getElementById('vis').insertBefore(button2, document.getElementById('vis').firstChild);
+
+        // Mapbox setup 
+        mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+        const map = new mapboxgl.Map({
+            container: "map",
+            style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+            center: [-88.020,15.468],
+            zoom: 5.75,
+            interactive: false
+
+        });
+
+
+
+
+        // var container = map.getCanvasContainer();
+
+
+
         setupVis(all_data);
 
         setupSections();
@@ -184,10 +202,15 @@ var scrollVis = function () {
             }
         }
 
+        // var barColors = d3.scaleOrdinal()
+        // .domain(domain_combos)
+        // .range(['#033F63','#056FB0','#6F9954','#9DD977','#2B7068', '#48BDAF']);
         var barColors = d3.scaleOrdinal()
         .domain(domain_combos)
-        .range(['#033F63','#056FB0','#6F9954','#9DD977','#2B7068', '#48BDAF']);
-
+        .range(['#033F63','#033F63','#6F9954','#6F9954','#2B7068', '#2B7068']);
+        var barOpacity = d3.scaleOrdinal()
+        .domain(ySubGroupValues)
+        .range([0.6, 1]);
         // radial chart
         var circles = g.selectAll('.circles').data(ticks);
         circles.enter()
@@ -222,13 +245,32 @@ var scrollVis = function () {
             .attr("fill", d => d['color'])
             .attr("d", d3.arc()     // imagine your doing a part of a donut plot
                 .innerRadius(innerRadius)
-                .outerRadius(d => rad_y(d['value_diff']))
-                .startAngle(d => rad_x(d.axis))
-                .endAngle(d => rad_x(d.axis) + rad_x.bandwidth())
+                // .outerRadius(innerRadius)
+                .outerRadius(function(d) {return(d['value_diff']>0)?rad_y(d['value_diff']):rad_y(d['value_diff']/2)})
+                .startAngle(function(d) {return rad_x(d.axis) + 0.17 })
+                .endAngle(d => rad_x(d.axis) + rad_x.bandwidth() + 0.17)
                 .padAngle(0.01)
                 .padRadius(innerRadius))
-            .attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+            .on("mouseover", function(event, d) {
+                console.log('mousetip')
+                d3.select("#tooltip")
+                    .style("left", (-60) + "%" )
+                    .style("top", (80) + "%")
+                .select("#value")
+                //   .data(data)
+                    .html("<p>"  + String(d.value_diff) +  "% " + " increase in monthly " + String(d.expenses) + " expenses per person" + "<br>" +
+                    "Households with remittances: " +  " $" + String(d.value_remit)  + "<br>" +
+                    "Households without remittances: " + " $" + String(d.value_noremit) + "</p>")
+                    .style("font-size", "14px")
+                d3.select("#tooltip")
+                .classed("hidden", false);
+                })
+            .on("mouseout", function() {
+                d3.select("#tooltip")
+                    .classed("hidden", true);
+                });
 
+        var rad_labels = spid_g.selectAll('.rad-labels').data(spider_dataset)
 
         var rad_labels = g.selectAll('.rad-labels').data(spider_dataset)
         rad_labels.enter()
@@ -378,6 +420,7 @@ var scrollVis = function () {
             .attr('fill', function (d) {return barColors(d.type+d.country); })
             .attr('width', 0)
             .attr('height', ySubBarScale.bandwidth())
+            .attr('opacity', function(d) {return barOpacity(d.type)})
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
 
@@ -435,6 +478,7 @@ var scrollVis = function () {
             .attr('fill', function (d) {return barColors(d.type+d.country); })
             .attr('width', 0)
             .attr('height', ySubBarScale.bandwidth())
+            .attr('opacity', function(d) {return barOpacity(d.type)})
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
 
@@ -489,6 +533,7 @@ var scrollVis = function () {
             .attr('fill', function (d) {return barColors(d.type+d.country); })
             .attr('width', 0)
             .attr('height', ySubBarScale.bandwidth())
+            .attr('opacity', function(d) {return barOpacity(d.type)})
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
 
@@ -543,6 +588,7 @@ var scrollVis = function () {
             .attr('fill', function (d) {return barColors(d.type+d.country); })
             .attr('width', 0)
             .attr('height', ySubBarScale.bandwidth())
+            .attr('opacity', function(d) {return barOpacity(d.type)})
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
 
@@ -623,6 +669,7 @@ var scrollVis = function () {
             .attr('y', function (d, i) {return ySubBarScale(d.type);})
             .attr('fill', function (d) {return barColors(d.type+d.country); })
             .attr('width', 0)
+            .attr('opacity', function(d) {return barOpacity(d.type)})
             .attr('height', ySubBarScale.bandwidth())
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
@@ -678,6 +725,7 @@ var scrollVis = function () {
             .attr('y', function (d, i) {return ySubBarScale(d.type);})
             .attr('fill', function (d) {return barColors(d.type+d.country); })
             .attr('width', 0)
+            .attr('opacity', function(d) {return barOpacity(d.type)})
             .attr('height', ySubBarScale.bandwidth())
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
             ;
@@ -726,6 +774,7 @@ var scrollVis = function () {
     var setupSections = function () {
         // activateFunctions are called each
         // time the active section changes
+
         activateFunctions[0] = end;
         activateFunctions[1] = showExpBarChart;
         activateFunctions[2] = showFoodBarChart;
@@ -751,8 +800,6 @@ var scrollVis = function () {
         updateFunctions[4] = function () {};
         updateFunctions[5] = function () {};
         updateFunctions[6] = function () {};
-        updateFunctions[7] = function () {};
-        updateFunctions[8] = function () {};
 
     };
 
@@ -773,7 +820,7 @@ var scrollVis = function () {
 
      function clean(chartType){
         let svg = d3.select('#vis').select('svg')
-        if (chartType !== "isExpBar" & chartType !== 'isExpPointer') {
+        if (chartType !== "isExpBar") {
             hideXAxis()
             hideYAxis()
             svg.selectAll('.exp-title').transition().duration(0).attr('opacity', 0);
@@ -835,9 +882,23 @@ var scrollVis = function () {
         if (chartType !== "isSpiderChart") {
             svg.selectAll('.circles').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.circleLabels').transition().duration(0).attr('opacity', 0);
-            svg.selectAll('.rad-bars').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.rad-bars').transition().duration(0).attr("d", d3.arc()     // imagine your doing a part of a donut plot
+                .innerRadius(innerRadius)
+                .outerRadius(innerRadius)
+                // .outerRadius(function(d) {return(d['value_diff']>0)?rad_y(d['value_diff']):rad_y(d['value_diff']/2)})
+                .startAngle(function(d) {return rad_x(d.axis) + 0.17 })
+                .endAngle(d => rad_x(d.axis) + rad_x.bandwidth() + 0.17)
+                .padAngle(0.01)
+                .padRadius(innerRadius));
             svg.selectAll('.rad-labels').transition().duration(0).attr('opacity', 0);
 
+            svg.selectAll('.spider-legend-text').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.spider-legend-rect').transition().duration(0).attr('opacity', 0);
+        }
+
+
+        if (chartType !== 'isMap'){
+            d3.select("#map").style.display = 'none';
         }
 
     }
@@ -854,13 +915,13 @@ var scrollVis = function () {
         clean('none');
     }
 
-    /**
-     * showFillerTitle - filler counts
-     *
-     * hides: intro title
-     * shows: filler count title
-     *
-     */
+    function showMap() {
+        clean('isMap');
+        d3.select("#map").style.display = 'inline-block';
+        console.log('map shown');
+       }
+
+
     function showExpBarChart() {
         clean('isExpBar');
         showXAxis(xBarScale);
@@ -890,10 +951,6 @@ var scrollVis = function () {
 
     }
 
-    function showExpPointer() {
-        showExpBarChart();
-
-    }
 
     function showFoodBarChart() {
         clean('isFoodBar');
@@ -1069,16 +1126,39 @@ var scrollVis = function () {
 
         g.selectAll('.rad-bars')
             .transition()
-            .ease(d3.easeBounce)
-            .duration(600)
-            .delay(300)
-            .attr('opacity',1);
+            // .ease(d3.easeBounce)
+            .duration(0)
+            .delay(100)  
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .innerRadius(innerRadius)
+            // .outerRadius(innerRadius)
+            .outerRadius(function(d) {return(d['value_diff']>0)?rad_y(d['value_diff']):rad_y(d['value_diff']/2)})
+            .startAngle(function(d) {return rad_x(d.axis) + 0.17 })
+            .endAngle(d => rad_x(d.axis) + rad_x.bandwidth() + 0.17)
+            .padAngle(0.01)
+            .padRadius(innerRadius));
 
         g.selectAll('.rad-labels')
             .transition()
             .duration(100)
             .attr('opacity',1);
 
+        g.selectAll('.spider-legend-rect')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);  
+
+        g.selectAll('.spider-legend-text')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);
+
+        d3.select(tooltip).transition().duration(300).attr('opacity',1);
+        // spider_g.selectAll('path')
+        //     .transition()
+        //     .ease(d3.easeBounce)
+        //     .duration(600)
+        //     .delay(1200);
         // add Spider chart elements to appear
     }
 

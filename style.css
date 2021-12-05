@@ -13,7 +13,7 @@
   display: inline-block;
   width: 35%;
   top: 0px;
-  z-index: 90;
+  /* z-index: 90; */
   padding-bottom: 40%;
 }
 
@@ -160,14 +160,25 @@ h2 {
 
 #tooltip {
     position: absolute;
-    width: 300px;
+    width: 400px;
     height:80px;
     padding: 5px;
-    background: white;
-    border: solid gray 1px;
-    z-index: 1;
+    /* background: white; */
+    /* border: solid gray 1px; */
+    /* z-index: 100; */
+    /* opacity:0; */
+  }
+  
+#tooltip.hidden{
+    display:none;
   }
 
-  #tooltip.hidden{
+#map {
+    z-index: 0;
+    width: 800px; 
+    height: 600px;
+}
+
+#map {
     display:none;
   }

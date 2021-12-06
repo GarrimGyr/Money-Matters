@@ -1077,7 +1077,80 @@ var scrollVis = function () {
          map.on("move", render);
          map.on("moveend", render);
          render(); // Call once to render
-       }
+       
+        // Trigger animation
+        d3.select("#start").on("click", function() {
+            g.selectAll("circle.GDP_circles")
+                .transition()
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x-(d[8]/2);
+                    });
+            g.selectAll("circle.remit_circle")
+                .transition()
+                .style("opacity","1")
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x+d[2]+(d[8]/2);
+                    });
+            g.selectAll("text.names")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x-(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.gdp")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x-(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.percent_change")
+                .transition()
+                .style("opacity","1")
+                .attr("x", function(d) {
+                    return project(d).x+d[2]+(d[8]/2);
+                    })
+                .delay(200);
+            });
+        
+        // Reset animation
+        d3.select("#reset").on("click", function() {
+            g.selectAll("circle.GDP_circles")
+                .transition()
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x+(d[8]/2);
+                    });
+            g.selectAll("circle.remit_circle")
+                .transition()
+                .style("opacity","0")
+                .attr("cx", function(d) {
+                    return project(d).x-d[2]-(d[8]/2);
+                    })
+                .delay(10);
+            g.selectAll("text.names")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x+(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.gdp")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x+(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.percent_change")
+                .transition()
+                .style("opacity","0")
+                .attr("x", function(d) {
+                    return project(d).x-d[2]-(d[8]/2);
+                    })
+                .delay(10);
+        });
+       
+        }
 
 
     function showExpBarChart() {

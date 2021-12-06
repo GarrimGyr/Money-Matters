@@ -445,6 +445,8 @@ var scrollVis = function () {
             .attr('opacity', 0);
 
 
+
+
         // barchart
         // @v4 Using .merge here to ensure
         // new and old data have same attrs applied
@@ -806,6 +808,41 @@ var scrollVis = function () {
             .attr('fill', '#FA6E06')
             .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
 
+        var remit_labels = g.selectAll('.remit_labels').data(exp_data);
+        remit_labels.enter()
+            .append('g')
+            .attr('class', 'remit_labels')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'remit_label')
+            .text(function (d, i) {return d.type=='No Remittances'?'Without Remittances':d.type})
+            .attr('x',  xBarScale(1))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()) + 2);})
+            .attr('opacity', 0)
+            .attr('fill', 'white')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'start')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+        var save_remit_labels = g.selectAll('.save_remit_labels').data(save_data);
+        save_remit_labels.enter()
+            .append('g')
+            .attr('class', 'save_remit_labels')
+            .attr("transform", function(d) {return "translate(0," + (yBarScale(d.country)) + ")"; })
+            .selectAll("text")
+            .data(function(d) { return Array({type:'No Remittances', 'value':d.no_remit},{type:'Remittances',value:d.remit})})
+            .enter().append("text").attr('class', 'save_remit_label')
+            .text(function (d, i) {return d.type=='No Remittances'?'Without Remittances':d.type})
+            .attr('x',  xBarScale(30))
+            .attr('y', function (d, i) { return (ySubBarScale(d.type) + (0.5* ySubBarScale.bandwidth()) + 2);})
+            .attr('opacity', 0)
+            .attr('fill', 'black')
+            .attr('font-size', '14pt')
+            .attr('text-anchor', 'end')
+            .attr('transform', 'translate(' + (chartMargin.left + margin.left) + ',' + (chartMargin.top + margin.top) + ')')
+
+
     };
 
     /**
@@ -875,6 +912,7 @@ var scrollVis = function () {
             svg.selectAll('.exp-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.exp-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.exp-bar-diff-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.remit_label').transition().duration(300).attr('opacity', 0);
 
         }
         if (chartType !== "isFoodBar") {
@@ -884,6 +922,7 @@ var scrollVis = function () {
             svg.selectAll('.food-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.food-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.food-bar-diff-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.remit_label').transition().duration(300).attr('opacity', 0);
 
         }
 
@@ -894,6 +933,7 @@ var scrollVis = function () {
             svg.selectAll('.health-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.health-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.health-bar-diff-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.remit_label').transition().duration(300).attr('opacity', 0);
 
         }
 
@@ -904,6 +944,7 @@ var scrollVis = function () {
             svg.selectAll('.health-share-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.health-share-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.health-share-bar-diff-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.remit_label').transition().duration(300).attr('opacity', 0);
 
         }
 
@@ -914,6 +955,7 @@ var scrollVis = function () {
             svg.selectAll('.save-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.save-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.save-bar-diff-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.remit_label').transition().duration(300).attr('opacity', 0);
 
         }
 
@@ -924,6 +966,7 @@ var scrollVis = function () {
             svg.selectAll('.save-share-bar').transition().duration(300).attr('width', 0);
             svg.selectAll('.save-share-bar-num').transition().duration(300).attr('opacity', 0);
             svg.selectAll('.save-share-bar-diff-text').transition().duration(300).attr('opacity', 0);
+            svg.selectAll('.save_remit_label').transition().duration(300).attr('opacity', 0);
 
         }
 
@@ -1136,6 +1179,8 @@ var scrollVis = function () {
             .duration(300)
             .attr('opacity', 1.0);
 
+
+
         g.selectAll('.exp-bar')
           .transition()
           .delay(function (d, i) { if (i%2==0) {return 200 * (i + 1)} else {return 600 + 300 * (i+1)};})
@@ -1154,6 +1199,11 @@ var scrollVis = function () {
           .duration(1000)
           .attr('opacity', 1);
 
+        g.selectAll('.remit_label')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(800)
+          .attr('opacity', 1.0);
     }
 
 
@@ -1167,6 +1217,7 @@ var scrollVis = function () {
         .transition()
         .duration(300)
         .attr('opacity', 1.0);
+
 
         g.selectAll('.food-bar')
           .transition()
@@ -1186,6 +1237,11 @@ var scrollVis = function () {
           .duration(1000)
           .attr('opacity', 1);
 
+        g.selectAll('.remit_label')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(800)
+          .attr('opacity', 1.0);
 
     }
 
@@ -1218,7 +1274,11 @@ var scrollVis = function () {
           .duration(1000)
           .attr('opacity', 1);
 
-
+        g.selectAll('.remit_label')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(800)
+          .attr('opacity', 1.0);
     }
 
     function showHealthSharesBarChart() {
@@ -1231,6 +1291,8 @@ var scrollVis = function () {
         .transition()
         .duration(300)
         .attr('opacity', 1.0);
+
+
 
         g.selectAll('.health-share-bar')
           .transition()
@@ -1250,7 +1312,11 @@ var scrollVis = function () {
           .duration(1000)
           .attr('opacity', 1);
 
-
+        g.selectAll('.remit_label')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(800)
+          .attr('opacity', 1.0);
     }
 
     function showSaveBarChart() {
@@ -1263,6 +1329,8 @@ var scrollVis = function () {
         .transition()
         .duration(300)
         .attr('opacity', 1.0);
+
+
 
         g.selectAll('.save-bar')
           .transition()
@@ -1282,6 +1350,11 @@ var scrollVis = function () {
           .duration(1000)
           .attr('opacity', 1);
 
+        g.selectAll('.remit_label')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(800)
+          .attr('opacity', 1.0);
     }
 
     function showSaveSharesBarChart() {
@@ -1289,6 +1362,7 @@ var scrollVis = function () {
         showSharesXAxis(xShareBarScale);
 
         showYAxis(yBarScale);
+
 
         g.selectAll('.shares-save-title')
         .transition()
@@ -1313,6 +1387,11 @@ var scrollVis = function () {
           .duration(1000)
           .attr('opacity', 1);
 
+          g.selectAll('.save_remit_label')
+          .transition()
+          .delay(function (d, i) { return 900 + 400 * (i + 1);})
+          .duration(800)
+          .attr('opacity', 1.0);
 
     }
 

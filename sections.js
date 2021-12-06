@@ -106,7 +106,7 @@ var scrollVis = function () {
         selection.each(function (all_data) {
         // create svg and give it a width and height
         svg = d3.select(this).selectAll('svg').data(all_data);
-        var svgE = svg.enter().append('svg');
+        var svgE = svg.enter().append('svg').attr('class', 'other_charts');
         // @v4 use merge to combine enter and existing selection
         svg = svg.merge(svgE);
 
@@ -830,6 +830,9 @@ var scrollVis = function () {
         updateFunctions[4] = function () {};
         updateFunctions[5] = function () {};
         updateFunctions[6] = function () {};
+        updateFunctions[7] = function () {};
+        updateFunctions[8] = function () {};
+        updateFunctions[9] = function () {};
 
     };
 
@@ -849,8 +852,11 @@ var scrollVis = function () {
      */
 
      function clean(chartType){
-        let svg = d3.select('#vis').select('svg','map')
+        let svg = d3.select('#vis').select('svg.other_charts')
+        console.log(svg);
+        let svg_map = d3.select('#vis').select('map')
         if (chartType !== "isExpBar") {
+            console.log('clean exp bar')
             hideXAxis()
             hideYAxis()
             svg.selectAll('.exp-title').transition().duration(0).attr('opacity', 0);
@@ -928,6 +934,7 @@ var scrollVis = function () {
 
 
         if (chartType !== 'isMap'){
+            console.log('not clear map')
             d3.select("#map").style('display','none');
         }
 
@@ -964,13 +971,13 @@ var scrollVis = function () {
  
          var container = map.getCanvasContainer();
          
-         var svg = d3
-         .select(container)
-         .append("svg")
-         .attr("width", "800px")
-         .attr("height", "600px")
-         .style("position", "absolute")
-         .style("z-index", 2);
+         var svg_map = d3
+            .select(container)
+            .append("svg")
+            .attr("width", "800px")
+            .attr("height", "600px")
+            .style("position", "absolute")
+            .style("z-index", 2);
  
          function project(d) {
              return map.project(new mapboxgl.LngLat(d[0], d[1]));
@@ -980,7 +987,7 @@ var scrollVis = function () {
          var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 Billion", "#033F63", "+15%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 Billion", "#2B7068","+24%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 Billion", "#6F9954", "+24%", 20.3]];
          
          // Create D3 group
-         var g = svg.selectAll(null)
+         var g_map = svg_map.selectAll(null)
            .data(data)
            .enter()
            .append("g")
@@ -989,21 +996,21 @@ var scrollVis = function () {
            })
          
          //Create GDP circles
-         g.append("circle")
+         g_map.append("circle")
              .attr("r", function(d){return d[2];})
              .style("opacity", "1")
              .style("fill", function(d){return d[6];})
              .attr("class","GDP_circles");
          
          //Create separate remit circles
-         g.append("circle")
+         g_map.append("circle")
              .attr("r", function(d){return d[8];})
              .style("fill", "#fa6e06")
              .style("opacity", "0")
              .attr("class","remit_circle");
          
          //Label circles with country names
-         g.append("text")
+         g_map.append("text")
              .text(function(d) { return d[4]; })
              .attr("dy", "-.75em")
              .attr('text-anchor', 'middle')
@@ -1014,7 +1021,7 @@ var scrollVis = function () {
              .attr("class","names");
          
          // Label circles with GDP
-         g.append("text")
+         g_map.append("text")
              .attr("dy", ".75em") // line break hack
              .text(function(d) { return d[5]; })
              .attr('text-anchor', 'middle')
@@ -1025,7 +1032,7 @@ var scrollVis = function () {
              .attr("class","gdp");
          
          // Label remit circles with percent change in GDP
-         g.append("text")
+         g_map.append("text")
              //.attr("dy", ".75em") // line break hack
              .text(function(d) { return d[7]; })
              .attr('text-anchor', 'middle')
@@ -1039,7 +1046,7 @@ var scrollVis = function () {
          // Redraw coordinates with changes in mapbox viewer
          function render() {
              // GDP circles
-             g.selectAll("circle")
+             g_map.selectAll("circle")
              .attr("cx", function(d) {
              return project(d).x;
              })
@@ -1048,7 +1055,7 @@ var scrollVis = function () {
              });
  
              // GDP text
-             g.selectAll("text")
+             g_map.selectAll("text")
              .attr("x", function(d) {
              return project(d).x;
              })
@@ -1057,7 +1064,7 @@ var scrollVis = function () {
               });
  
              // Remit circles
-             g.selectAll("circle.remit_circles")
+             g_map.selectAll("circle.remit_circles")
              .attr("cx", function(d) {
              return project(d).x+d[2]+d[8];
              })

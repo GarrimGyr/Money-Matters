@@ -971,199 +971,159 @@ var scrollVis = function () {
         d3.select("#map").style('display','inline-block');
         console.log('map shown');
 
-         // Mapbox setup 
-         mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
-         const map = new mapboxgl.Map({
-             container: "map",
-             style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
-             center: [-88.020,15.468],
-             zoom: 5.75,
-             interactive: false
-         });
- 
-         // Mapbox + D3 Integration adapted from tutorial by Frank Schlosser at https://franksh.com/posts/d3-mapboxgl/
- 
-         var container = map.getCanvasContainer();
-         
-         var svg_map = d3
-            .select(container)
-            .append("svg")
-            .attr("width", "800px")
-            .attr("height", "600px")
-            .style("position", "absolute")
-            .style("z-index", 2);
- 
-         function project(d) {
-             return map.project(new mapboxgl.LngLat(d[0], d[1]));
-           }
-         
-         // Data for GDP expansion vizualizations
-         var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 Billion", "#033F63", "+15%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 Billion", "#2B7068","+24%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 Billion", "#6F9954", "+24%", 20.3]];
-         
-         // Create D3 group
-         var g_map = svg_map.selectAll(null)
-           .data(data)
-           .enter()
-           .append("g")
-           .attr("transform", function(d) {
-               return "translate(" + project([d[0], d[1]]) + ")" ;
-           })
-         
-         //Create GDP circles
-         g_map.append("circle")
-             .attr("r", function(d){return d[2];})
-             .style("opacity", "1")
-             .style("fill", function(d){return d[6];})
-             .attr("class","GDP_circles");
-         
-         //Create separate remit circles
-         g_map.append("circle")
-             .attr("r", function(d){return d[8];})
-             .style("fill", "#fa6e06")
-             .style("opacity", "0")
-             .attr("class","remit_circle");
-         
-         //Label circles with country names
-         g_map.append("text")
-             .text(function(d) { return d[4]; })
-             .attr("dy", "-.75em")
-             .attr('text-anchor', 'middle')
-             .attr('alignment-baseline', 'middle')
-             .attr('fill', 'white')
-             .attr('font-weight', 'bold')
-             .attr('font-family', 'avenir')
-             .attr("class","names");
-         
-         // Label circles with GDP
-         g_map.append("text")
-             .attr("dy", ".75em") // line break hack
-             .text(function(d) { return d[5]; })
-             .attr('text-anchor', 'middle')
-             .attr('alignment-baseline', 'middle')
-             .attr('fill', 'white')
-             .attr('font-weight', 'normal')
-             .attr('font-family', 'avenir')
-             .attr("class","gdp");
-         
-         // Label remit circles with percent change in GDP
-         g_map.append("text")
-             //.attr("dy", ".75em") // line break hack
-             .text(function(d) { return d[7]; })
-             .attr('text-anchor', 'middle')
-             .attr('alignment-baseline', 'middle')
-             .attr('fill', 'white')
-             .attr('font-weight', 'bold')
-             .attr('font-family', 'avenir')
-             .style("opacity","0")
-             .attr("class","percent_change");
-         
-         // Redraw coordinates with changes in mapbox viewer
-         function render() {
-             // GDP circles
-             g_map.selectAll("circle")
-             .attr("cx", function(d) {
-             return project(d).x;
-             })
-             .attr("cy", function(d) {
-             return project(d).y;
-             });
- 
-             // GDP text
-             g_map.selectAll("text")
-             .attr("x", function(d) {
-             return project(d).x;
-             })
-             .attr("y", function(d) {
-             return project(d).y;
-              });
- 
-             // Remit circles
-             g_map.selectAll("circle.remit_circles")
-             .attr("cx", function(d) {
-             return project(d).x+d[2]+d[8];
-             })
-             .attr("cy", function(d) {
-             return project(d).y;
-             });
-               }
-         
-         map.on("viewreset", render);
-         map.on("move", render);
-         map.on("moveend", render);
-         render(); // Call once to render
-       
-        // Trigger animation
-        d3.select("#start").on("click", function() {
-            g.selectAll("circle.GDP_circles")
-                .transition()
-                .delay(200)
-                .attr("cx", function(d) {
-                    return project(d).x-(d[8]/2);
-                    });
-            g.selectAll("circle.remit_circle")
-                .transition()
-                .style("opacity","1")
-                .delay(200)
-                .attr("cx", function(d) {
-                    return project(d).x+d[2]+(d[8]/2);
-                    });
-            g.selectAll("text.names")
-                    .transition()
-                    .attr("x", function(d) {
-                        return project(d).x-(d[8]/2);
-                        })
-                    .delay(200);
-            g.selectAll("text.gdp")
-                    .transition()
-                    .attr("x", function(d) {
-                        return project(d).x-(d[8]/2);
-                        })
-                    .delay(200);
-            g.selectAll("text.percent_change")
-                .transition()
-                .style("opacity","1")
-                .attr("x", function(d) {
-                    return project(d).x+d[2]+(d[8]/2);
-                    })
-                .delay(200);
-            });
-        
-        // Reset animation
-        d3.select("#reset").on("click", function() {
-            g.selectAll("circle.GDP_circles")
-                .transition()
-                .delay(200)
-                .attr("cx", function(d) {
-                    return project(d).x+(d[8]/2);
-                    });
-            g.selectAll("circle.remit_circle")
-                .transition()
-                .style("opacity","0")
-                .attr("cx", function(d) {
-                    return project(d).x-d[2]-(d[8]/2);
-                    })
-                .delay(10);
-            g.selectAll("text.names")
-                    .transition()
-                    .attr("x", function(d) {
-                        return project(d).x+(d[8]/2);
-                        })
-                    .delay(200);
-            g.selectAll("text.gdp")
-                    .transition()
-                    .attr("x", function(d) {
-                        return project(d).x+(d[8]/2);
-                        })
-                    .delay(200);
-            g.selectAll("text.percent_change")
-                .transition()
-                .style("opacity","0")
-                .attr("x", function(d) {
-                    return project(d).x-d[2]-(d[8]/2);
-                    })
-                .delay(10);
+        // Mapbox setup 
+        mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+        const map = new mapboxgl.Map({
+            container: "map",
+            style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+            center: [-88.020,15.468],
+            zoom: 5.75,
+            interactive: false
         });
-       
+
+        // Mapbox + D3 Integration adapted from tutorial by Frank Schlosser at https://franksh.com/posts/d3-mapboxgl/
+
+        var container = map.getCanvasContainer();
+        
+        var svg = d3
+        .select(container)
+        .append("svg")
+        .attr("width", "800px")
+        .attr("height", "600px")
+        .style("position", "absolute")
+        .style("z-index", 2);
+
+        function project(d) {
+            return map.project(new mapboxgl.LngLat(d[0], d[1]));
+          }
+        
+        // Data for GDP expansion vizualizations
+        var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 B", "#033F63", "+15%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 B", "#2B7068","+24%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 B", "#6F9954", "+24%", 20.3]];
+        
+        // Create D3 group
+        var g = svg.selectAll(null)
+          .data(data)
+          .enter()
+          .append("g")
+          .attr("transform", function(d) {
+              return "translate(" + project([d[0], d[1]]) + ")" ;
+          })
+        
+        //Create GDP circles
+        g.append("circle")
+            .attr("r", function(d){return d[2];})
+            .style("opacity", "1")
+            .style("fill", function(d){return d[6];})
+            .attr("class","GDP_circles");
+        
+        //Create separate remit circles
+        g.append("circle")
+            .attr("r", function(d){return d[8];})
+            .style("fill", "#fa6e06")
+            .style("opacity", "0")
+            .attr("class","remit_circle");
+        
+        //Label circles with country names
+        g.append("text")
+            .text(function(d) { return d[4]; })
+            .attr("dy", "-.6em")
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'normal')
+            //.attr('font-family', 'avenir')
+            .attr("class","names");
+        
+        // Label circles with GDP
+        g.append("text")
+            .attr("dy", ".6em") // line break hack
+            .text(function(d) { return d[5]; })
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'lighter')
+            //.attr('font-family', 'avenir')
+            .attr("class","gdp");
+        
+        // Label remit circles with percent change in GDP
+        g.append("text")
+            //.attr("dy", ".75em") // line break hack
+            .text(function(d) { return d[7]; })
+            .attr('text-anchor', 'middle')
+            .attr('alignment-baseline', 'middle')
+            .attr('fill', 'white')
+            .attr('font-weight', 'normal')
+            //.attr('font-family', 'avenir')
+            .style("opacity","0")
+            .attr("class","percent_change");
+        
+        g.selectAll("circle.GDP_circles")
+            .transition()
+            .delay(1000)
+            .attr("cx", function(d) {
+                return project(d).x-(d[8]/2);
+                });
+        g.selectAll("circle.remit_circle")
+            .transition()
+            .style("opacity","1")
+            .delay(1000)
+            .attr("cx", function(d) {
+                return project(d).x+d[2]+(d[8]/2);
+                });
+        g.selectAll("text.names")
+                .transition()
+                .attr("x", function(d) {
+                    return project(d).x-(d[8]/2);
+                    })
+                .delay(1000);
+        g.selectAll("text.gdp")
+                .transition()
+                .attr("x", function(d) {
+                    return project(d).x-(d[8]/2);
+                    })
+                .delay(1000);
+        g.selectAll("text.percent_change")
+            .transition()
+            .style("opacity","1")
+            .attr("x", function(d) {
+                return project(d).x+d[2]+(d[8]/2);
+                })
+            .delay(1000);
+
+        // Redraw coordinates with changes in mapbox viewer
+        function render() {
+            // GDP circles
+            g.selectAll("circle")
+            .attr("cx", function(d) {
+            return project(d).x;
+            })
+            .attr("cy", function(d) {
+            return project(d).y;
+            });
+
+            // GDP text
+            g.selectAll("text")
+            .attr("x", function(d) {
+            return project(d).x;
+            })
+            .attr("y", function(d) {
+            return project(d).y;
+             });
+
+            // Remit circles
+            g.selectAll("circle.remit_circles")
+            .attr("cx", function(d) {
+            return project(d).x+d[2]+d[8];
+            })
+            .attr("cy", function(d) {
+            return project(d).y;
+            });
+              }
+        
+        map.on("viewreset", render);
+        map.on("move", render);
+        map.on("moveend", render);
+        render(); // Call once to render
         }
 
 

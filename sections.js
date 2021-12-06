@@ -14,6 +14,12 @@ var scrollVis = function () {
     var chartMargin = {top: 30, left: 85, bottom: 10, right: 10};
     var chartWidth = visWidth - margin.left - margin.right - chartMargin.left - chartMargin.right;
     var chartHeight = visHeight - margin.top - margin.bottom - chartMargin.top  - chartMargin.bottom;
+<<<<<<< Updated upstream
+=======
+
+    var innerRadius = 80;
+    var outerRadius = Math.min(visWidth - spiderMargin.left - spiderMargin.right, visHeight - spiderMargin.top - spiderMargin.bottom) / 2;   // the outerRadius goes from the middle of the SVG area to the border
+>>>>>>> Stashed changes
 
     var innerRadius = 120;
     var outerRadius = Math.min(visWidth, visHeight) / 2;   // the outerRadius goes from the middle of the SVG area to the border
@@ -121,8 +127,36 @@ var scrollVis = function () {
         // button1.innerHTML = 'shares';
         // button1.onclick = showHealthSharesBarChart();
 
+<<<<<<< Updated upstream
         // button1.className = "share_shift";
         // document.getElementById('vis').insertBefore(button1, document.getElementById('vis').firstChild);
+=======
+        g.append('g').attr('class', 'spider_chart');
+
+        spid_g = g.select('g');
+        spid_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+
+        map_g = g.select('g');
+        map_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+
+
+        // Mapbox setup
+      //  mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+       // const map = new mapboxgl.Map({
+       //     container: "map",
+        //    style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+         //   center: [-88.020,15.468],
+         //   zoom: 5.75,
+        //    interactive: false
+
+      //  });
+
+
+
+
+        // var container = map.getCanvasContainer();
+
+>>>>>>> Stashed changes
 
         // var button2 = document.createElement('button');
         // button2.innerHTML = 'money spent';
@@ -727,6 +761,7 @@ var scrollVis = function () {
         // activateFunctions are called each
         // time the active section changes
         activateFunctions[0] = end;
+<<<<<<< Updated upstream
         activateFunctions[1] = showExpBarChart;
         activateFunctions[2] = showFoodBarChart;
         activateFunctions[3] = showHealthSharesBarChart;
@@ -735,6 +770,17 @@ var scrollVis = function () {
         activateFunctions[6] = showSaveBarChart;
         activateFunctions[7] = showSpiderChart;
         activateFunctions[8] = end;
+=======
+        activateFunctions[1] = showMap;
+        activateFunctions[2] = showExpBarChart;
+        activateFunctions[3] = showFoodBarChart;
+        activateFunctions[4] = showHealthSharesBarChart;
+        activateFunctions[5] = showSaveSharesBarChart;
+        activateFunctions[6] = showSpiderChart;
+        activateFunctions[7] = end;
+        //activateFunctions[8] = showSpiderChart;
+        //activateFunctions[9] = end;
+>>>>>>> Stashed changes
 
 
         // updateFunctions are called while
@@ -752,7 +798,12 @@ var scrollVis = function () {
         updateFunctions[5] = function () {};
         updateFunctions[6] = function () {};
         updateFunctions[7] = function () {};
+<<<<<<< Updated upstream
         updateFunctions[8] = function () {};
+=======
+        //updateFunctions[8] = function () {};
+        //updateFunctions[9] = function () {};
+>>>>>>> Stashed changes
 
     };
 
@@ -854,6 +905,7 @@ var scrollVis = function () {
         clean('none');
     }
 
+<<<<<<< Updated upstream
     /**
      * showFillerTitle - filler counts
      *
@@ -861,6 +913,209 @@ var scrollVis = function () {
      * shows: filler count title
      *
      */
+=======
+    function showMap() {
+        clean('isMap');
+        d3.select("#map").style('display','inline-block');
+        console.log('map shown');
+
+         // Mapbox setup
+         mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+         const map = new mapboxgl.Map({
+             container: "map",
+             style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+             center: [-88.020,15.468],
+             zoom: 5.75,
+             interactive: false
+         });
+
+         // Mapbox + D3 Integration adapted from tutorial by Frank Schlosser at https://franksh.com/posts/d3-mapboxgl/
+
+         var container = map.getCanvasContainer();
+
+         var svg_map = d3
+            .select(container)
+            .append("svg")
+            .attr("width", "800px")
+            .attr("height", "600px")
+            .style("position", "absolute")
+            .style("z-index", 2);
+
+         function project(d) {
+             return map.project(new mapboxgl.LngLat(d[0], d[1]));
+           }
+
+         // Data for GDP expansion vizualizations
+         var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 Billion", "#033F63", "+15%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 Billion", "#2B7068","+24%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 Billion", "#6F9954", "+24%", 20.3]];
+
+         // Create D3 group
+         var g_map = svg_map.selectAll(null)
+           .data(data)
+           .enter()
+           .append("g")
+           .attr("transform", function(d) {
+               return "translate(" + project([d[0], d[1]]) + ")" ;
+           })
+
+         //Create GDP circles
+         g_map.append("circle")
+             .attr("r", function(d){return d[2];})
+             .style("opacity", "1")
+             .style("fill", function(d){return d[6];})
+             .attr("class","GDP_circles");
+
+         //Create separate remit circles
+         g_map.append("circle")
+             .attr("r", function(d){return d[8];})
+             .style("fill", "#fa6e06")
+             .style("opacity", "0")
+             .attr("class","remit_circle");
+
+         //Label circles with country names
+         g_map.append("text")
+             .text(function(d) { return d[4]; })
+             .attr("dy", "-.75em")
+             .attr('text-anchor', 'middle')
+             .attr('alignment-baseline', 'middle')
+             .attr('fill', 'white')
+             .attr('font-weight', 'bold')
+             .attr('font-family', 'avenir')
+             .attr("class","names");
+
+         // Label circles with GDP
+         g_map.append("text")
+             .attr("dy", ".75em") // line break hack
+             .text(function(d) { return d[5]; })
+             .attr('text-anchor', 'middle')
+             .attr('alignment-baseline', 'middle')
+             .attr('fill', 'white')
+             .attr('font-weight', 'normal')
+             .attr('font-family', 'avenir')
+             .attr("class","gdp");
+
+         // Label remit circles with percent change in GDP
+         g_map.append("text")
+             //.attr("dy", ".75em") // line break hack
+             .text(function(d) { return d[7]; })
+             .attr('text-anchor', 'middle')
+             .attr('alignment-baseline', 'middle')
+             .attr('fill', 'white')
+             .attr('font-weight', 'bold')
+             .attr('font-family', 'avenir')
+             .style("opacity","0")
+             .attr("class","percent_change");
+
+         // Redraw coordinates with changes in mapbox viewer
+         function render() {
+             // GDP circles
+             g_map.selectAll("circle")
+             .attr("cx", function(d) {
+             return project(d).x;
+             })
+             .attr("cy", function(d) {
+             return project(d).y;
+             });
+
+             // GDP text
+             g_map.selectAll("text")
+             .attr("x", function(d) {
+             return project(d).x;
+             })
+             .attr("y", function(d) {
+             return project(d).y;
+              });
+
+             // Remit circles
+             g_map.selectAll("circle.remit_circles")
+             .attr("cx", function(d) {
+             return project(d).x+d[2]+d[8];
+             })
+             .attr("cy", function(d) {
+             return project(d).y;
+             });
+               }
+
+         map.on("viewreset", render);
+         map.on("move", render);
+         map.on("moveend", render);
+         render(); // Call once to render
+
+        // Trigger animation
+        d3.select("#start").on("click", function() {
+            g.selectAll("circle.GDP_circles")
+                .transition()
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x-(d[8]/2);
+                    });
+            g.selectAll("circle.remit_circle")
+                .transition()
+                .style("opacity","1")
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x+d[2]+(d[8]/2);
+                    });
+            g.selectAll("text.names")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x-(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.gdp")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x-(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.percent_change")
+                .transition()
+                .style("opacity","1")
+                .attr("x", function(d) {
+                    return project(d).x+d[2]+(d[8]/2);
+                    })
+                .delay(200);
+            });
+
+        // Reset animation
+        d3.select("#reset").on("click", function() {
+            g.selectAll("circle.GDP_circles")
+                .transition()
+                .delay(200)
+                .attr("cx", function(d) {
+                    return project(d).x+(d[8]/2);
+                    });
+            g.selectAll("circle.remit_circle")
+                .transition()
+                .style("opacity","0")
+                .attr("cx", function(d) {
+                    return project(d).x-d[2]-(d[8]/2);
+                    })
+                .delay(10);
+            g.selectAll("text.names")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x+(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.gdp")
+                    .transition()
+                    .attr("x", function(d) {
+                        return project(d).x+(d[8]/2);
+                        })
+                    .delay(200);
+            g.selectAll("text.percent_change")
+                .transition()
+                .style("opacity","0")
+                .attr("x", function(d) {
+                    return project(d).x-d[2]-(d[8]/2);
+                    })
+                .delay(10);
+        });
+
+        }
+
+
+>>>>>>> Stashed changes
     function showExpBarChart() {
         clean('isExpBar');
         showXAxis(xBarScale);
@@ -1069,12 +1324,38 @@ var scrollVis = function () {
 
         g.selectAll('.rad-bars')
             .transition()
+<<<<<<< Updated upstream
             .ease(d3.easeBounce)
             .duration(600)
             .delay(300)
             .attr('opacity',1);
 
         g.selectAll('.rad-labels')
+=======
+            // .ease(d3.easeBounce)
+            .duration(0)
+            .delay(100)
+            .attr("d", d3.arc()     // imagine your doing a part of a donut plot
+            .innerRadius(innerRadius)
+            // .outerRadius(innerRadius)
+            .outerRadius(function(d) {return(d['value_diff']>0)?rad_y(d['value_diff']):rad_y(d['value_diff']/2)})
+            .startAngle(function(d) {return rad_x(d.axis) + 0.17 })
+            .endAngle(d => rad_x(d.axis) + rad_x.bandwidth() + 0.17)
+            .padAngle(0.01)
+            .padRadius(innerRadius));
+
+        g.selectAll('.rad-labels')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);
+
+        g.selectAll('.spider-legend-rect')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);
+
+        g.selectAll('.spider-legend-text')
+>>>>>>> Stashed changes
             .transition()
             .duration(100)
             .attr('opacity',1);

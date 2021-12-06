@@ -124,17 +124,20 @@ var scrollVis = function () {
         spid_g = g.select('g');
         spid_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
 
+        map_g = g.select('g');
+        map_g.attr("transform", `translate(${visWidth/2}, ${visHeight/2})`);
+
 
         // Mapbox setup 
-        mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
-        const map = new mapboxgl.Map({
-            container: "map",
-            style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
-            center: [-88.020,15.468],
-            zoom: 5.75,
-            interactive: false
+      //  mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+       // const map = new mapboxgl.Map({
+       //     container: "map",
+        //    style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+         //   center: [-88.020,15.468],
+         //   zoom: 5.75,
+        //    interactive: false
 
-        });
+      //  });
 
 
 
@@ -802,14 +805,15 @@ var scrollVis = function () {
         // time the active section changes
 
         activateFunctions[0] = end;
-        activateFunctions[1] = showExpBarChart;
-        activateFunctions[2] = showFoodBarChart;
-        activateFunctions[3] = showHealthSharesBarChart;
-        activateFunctions[4] = showHealthBarChart;
-        activateFunctions[5] = showSaveSharesBarChart;
-        activateFunctions[6] = showSaveBarChart;
-        activateFunctions[7] = showSpiderChart;
-        activateFunctions[8] = end;
+        activateFunctions[1] = showMap;
+        activateFunctions[2] = showExpBarChart;
+        activateFunctions[3] = showFoodBarChart;
+        activateFunctions[4] = showHealthSharesBarChart;
+        activateFunctions[5] = showHealthBarChart;
+        activateFunctions[6] = showSaveSharesBarChart;
+        activateFunctions[7] = showSaveBarChart;
+        activateFunctions[8] = showSpiderChart;
+        activateFunctions[9] = end;
 
 
         // updateFunctions are called while
@@ -845,7 +849,7 @@ var scrollVis = function () {
      */
 
      function clean(chartType){
-        let svg = d3.select('#vis').select('svg')
+        let svg = d3.select('#vis').select('svg','map')
         if (chartType !== "isExpBar") {
             hideXAxis()
             hideYAxis()
@@ -924,7 +928,7 @@ var scrollVis = function () {
 
 
         if (chartType !== 'isMap'){
-            d3.select("#map").style.display = 'none';
+            d3.select("#map").style('display','none');
         }
 
     }
@@ -943,8 +947,129 @@ var scrollVis = function () {
 
     function showMap() {
         clean('isMap');
-        d3.select("#map").style.display = 'inline-block';
+        d3.select("#map").style('display','inline-block');
         console.log('map shown');
+
+         // Mapbox setup 
+         mapboxgl.accessToken = 'pk.eyJ1IjoiamRldmluZW1pdCIsImEiOiJja3dqazJkczgwcHFjMm50Z2cwczY4cnc1In0.uGy-uqSjMUgm6p7pv7aDhg';
+         const map = new mapboxgl.Map({
+             container: "map",
+             style: 'mapbox://styles/jdevinemit/ckwjfe1dg1zy614p35779y2do',
+             center: [-88.020,15.468],
+             zoom: 5.75,
+             interactive: false
+         });
+ 
+         // Mapbox + D3 Integration adapted from tutorial by Frank Schlosser at https://franksh.com/posts/d3-mapboxgl/
+ 
+         var container = map.getCanvasContainer();
+         
+         var svg = d3
+         .select(container)
+         .append("svg")
+         .attr("width", "800px")
+         .attr("height", "600px")
+         .style("position", "absolute")
+         .style("z-index", 2);
+ 
+         function project(d) {
+             return map.project(new mapboxgl.LngLat(d[0], d[1]));
+           }
+         
+         // Data for GDP expansion vizualizations
+         var data = [[-90.37, 15.70, 75.7, 81.1, "Guatemala", "$77.6 Billion", "#033F63", "+15%", 29], [-88.86, 13.73, 42.7, 47.5, "El Salvador", "$24.6 Billion", "#2B7068","+24%", 21 ], [-86.60, 14.83, 42, 46.6, "Honduras", "$23.8 Billion", "#6F9954", "+24%", 20.3]];
+         
+         // Create D3 group
+         var g = svg.selectAll(null)
+           .data(data)
+           .enter()
+           .append("g")
+           .attr("transform", function(d) {
+               return "translate(" + project([d[0], d[1]]) + ")" ;
+           })
+         
+         //Create GDP circles
+         g.append("circle")
+             .attr("r", function(d){return d[2];})
+             .style("opacity", "1")
+             .style("fill", function(d){return d[6];})
+             .attr("class","GDP_circles");
+         
+         //Create separate remit circles
+         g.append("circle")
+             .attr("r", function(d){return d[8];})
+             .style("fill", "#fa6e06")
+             .style("opacity", "0")
+             .attr("class","remit_circle");
+         
+         //Label circles with country names
+         g.append("text")
+             .text(function(d) { return d[4]; })
+             .attr("dy", "-.75em")
+             .attr('text-anchor', 'middle')
+             .attr('alignment-baseline', 'middle')
+             .attr('fill', 'white')
+             .attr('font-weight', 'bold')
+             .attr('font-family', 'avenir')
+             .attr("class","names");
+         
+         // Label circles with GDP
+         g.append("text")
+             .attr("dy", ".75em") // line break hack
+             .text(function(d) { return d[5]; })
+             .attr('text-anchor', 'middle')
+             .attr('alignment-baseline', 'middle')
+             .attr('fill', 'white')
+             .attr('font-weight', 'normal')
+             .attr('font-family', 'avenir')
+             .attr("class","gdp");
+         
+         // Label remit circles with percent change in GDP
+         g.append("text")
+             //.attr("dy", ".75em") // line break hack
+             .text(function(d) { return d[7]; })
+             .attr('text-anchor', 'middle')
+             .attr('alignment-baseline', 'middle')
+             .attr('fill', 'white')
+             .attr('font-weight', 'bold')
+             .attr('font-family', 'avenir')
+             .style("opacity","0")
+             .attr("class","percent_change");
+         
+         // Redraw coordinates with changes in mapbox viewer
+         function render() {
+             // GDP circles
+             g.selectAll("circle")
+             .attr("cx", function(d) {
+             return project(d).x;
+             })
+             .attr("cy", function(d) {
+             return project(d).y;
+             });
+ 
+             // GDP text
+             g.selectAll("text")
+             .attr("x", function(d) {
+             return project(d).x;
+             })
+             .attr("y", function(d) {
+             return project(d).y;
+              });
+ 
+             // Remit circles
+             g.selectAll("circle.remit_circles")
+             .attr("cx", function(d) {
+             return project(d).x+d[2]+d[8];
+             })
+             .attr("cy", function(d) {
+             return project(d).y;
+             });
+               }
+         
+         map.on("viewreset", render);
+         map.on("move", render);
+         map.on("moveend", render);
+         render(); // Call once to render
        }
 
 

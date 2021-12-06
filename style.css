@@ -102,7 +102,7 @@ h2 {
   text-anchor: start;
 } */
 
-#vis .title.exp-title, #vis .title.food-title, #vis .title.health-title, #vis .title.save-title, #vis .title.shares-health-title, #vis .title.shares-save-title {
+#vis .title.exp-title, #vis .title.food-title, #vis .title.health-title, #vis .title.save-title, #vis .title.shares-health-title, #vis .title.shares-save-title, #vis .title.spider-title {
   font-family: Arial,Helvetica,"san-serif";
   font-weight: bold;
 
@@ -111,7 +111,7 @@ h2 {
   text-anchor: start;
 }
 
-#vis .sub-title.exp-title, .sub-title.food-title, .sub-title.health-title, .sub-title.save-title, .sub-title.shares-health-title, .sub-title.shares-save-title{
+#vis .sub-title.exp-title, .sub-title.food-title, .sub-title.health-title, .sub-title.save-title, .sub-title.shares-health-title, .sub-title.shares-save-title, .sub-title.spider-title{
     font-family: "TiemposTextWeb-Regular","Georgia";
     font-size:14px;
     color:#767678;

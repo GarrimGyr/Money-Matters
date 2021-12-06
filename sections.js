@@ -429,6 +429,21 @@ var scrollVis = function () {
         g.selectAll('.shares-save-title')
             .attr('opacity', 0);
 
+        g.append('text')
+            .attr('class', 'title spider-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top - 180)
+            .text('Percent change across spending categories');
+
+        g.append('text')
+            .attr('class', 'sub-title spider-title')
+            .attr('x', margin.left)
+            .attr('y', margin.top + 20 - 180)
+            .text('Comparison between households receiving remittances vs. households not receiving remittances');
+
+        g.selectAll('.shares-save-title')
+            .attr('opacity', 0);
+
 
         // barchart
         // @v4 Using .merge here to ensure
@@ -809,11 +824,9 @@ var scrollVis = function () {
         activateFunctions[2] = showExpBarChart;
         activateFunctions[3] = showFoodBarChart;
         activateFunctions[4] = showHealthSharesBarChart;
-        activateFunctions[5] = showHealthBarChart;
-        activateFunctions[6] = showSaveSharesBarChart;
-        activateFunctions[7] = showSaveBarChart;
-        activateFunctions[8] = showSpiderChart;
-        activateFunctions[9] = end;
+        activateFunctions[5] = showSaveSharesBarChart;
+        activateFunctions[6] = showSpiderChart;
+        activateFunctions[7] = end;
 
 
         // updateFunctions are called while
@@ -831,8 +844,7 @@ var scrollVis = function () {
         updateFunctions[5] = function () {};
         updateFunctions[6] = function () {};
         updateFunctions[7] = function () {};
-        updateFunctions[8] = function () {};
-        updateFunctions[9] = function () {};
+
 
     };
 
@@ -930,6 +942,8 @@ var scrollVis = function () {
             svg.selectAll('.rad-labels').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.spider-legend-text').transition().duration(0).attr('opacity', 0);
             svg.selectAll('.spider-legend-rect').transition().duration(0).attr('opacity', 0);
+            svg.selectAll('.spider-title').transition().duration(0).attr('opacity', 0);
+
         }
 
 
@@ -1345,6 +1359,15 @@ var scrollVis = function () {
     function showSpiderChart() {
         clean('isSpiderChart');
 
+        g.selectAll('.spider-title')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);
+
+        g.selectAll('.circles')
+            .transition()
+            .duration(300)
+            .attr('opacity',1);
         g.selectAll('.circles')
             .transition()
             .duration(300)

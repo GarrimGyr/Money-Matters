@@ -1059,14 +1059,14 @@ var scrollVis = function () {
         
         g.selectAll("circle.GDP_circles")
             .transition()
-            .delay(200)
+            .delay(600)
             .attr("cx", function(d) {
                 return project(d).x-(d[8]/2);
                 });
         g.selectAll("circle.remit_circle")
             .transition()
             .style("opacity","1")
-            .delay(200)
+            .delay(600)
             .attr("cx", function(d) {
                 return project(d).x+d[2]+(d[8]/2);
                 });
@@ -1075,20 +1075,20 @@ var scrollVis = function () {
                 .attr("x", function(d) {
                     return project(d).x-(d[8]/2);
                     })
-                .delay(200);
+                .delay(600);
         g.selectAll("text.gdp")
                 .transition()
                 .attr("x", function(d) {
                     return project(d).x-(d[8]/2);
                     })
-                .delay(200);
+                .delay(600);
         g.selectAll("text.percent_change")
             .transition()
             .style("opacity","1")
             .attr("x", function(d) {
                 return project(d).x+d[2]+(d[8]/2);
                 })
-            .delay(200);
+            .delay(600);
 
         // Redraw coordinates with changes in mapbox viewer
         function render() {
